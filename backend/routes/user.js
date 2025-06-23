@@ -1,0 +1,39 @@
+const express = require("express");
+const {
+  signup,
+  verifyAccount,
+  resendOtp,
+  login,
+  logout,
+  forgetPassword,
+  resetPassword,
+  changePassword,
+} = require("../controllers/auth");
+const {
+  getProfile,
+  editProfile,
+  suggestedUser,
+  followUnfollow,
+  getMe,
+} = require("../controllers/user");
+const isAuthenticated = require("../middleware/isAuthenticated");
+const upload = require("../middleware/multer");
+
+const router = express.Router();
+
+router.post("/signup", signup);
+router.post("/verify", isAuthenticated, verifyAccount);
+router.post("/resend-otp", isAuthenticated, resendOtp);
+router.post("/login", login);
+router.post("/logout", logout);
+router.post("/forget-password", forgetPassword);
+router.post("/reset-password", resetPassword);
+router.post("/change-password", isAuthenticated, changePassword);
+
+router.get("/profile/:id", getProfile);
+router.post("/edit-profile", isAuthenticated, upload.single("profilePicture"), editProfile);
+router.get("/suggested-user", isAuthenticated, suggestedUser);
+router.post("/follow-unfollow", isAuthenticated, followUnfollow);
+router.get("/me", isAuthenticated, getMe);
+
+module.exports = router;

@@ -6,9 +6,10 @@ const cookieParser = require("cookie-parser");
 const mongoSanitize = require("express-mongo-sanitize");
 const path = require("path");
 
-const userRouter = require("./routes/userRoutes");
 const AppError = require("./utils/appError");
-const globalErrorHandler = require("./controllers/errorController");
+const globalErrorHandler = require("./controllers/error");
+const userRouter = require("./routes/user");
+const postRouter = require("./routes/post");
 
 const app = express();
 
@@ -32,8 +33,9 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/posts", postRouter);
 // app.all("*", (req, res, next) => {
-//     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+//     return next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 // });
 
 app.use(globalErrorHandler);
