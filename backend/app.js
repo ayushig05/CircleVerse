@@ -17,7 +17,7 @@ app.use("/", express.static("uploads"));
 app.use(cookieParser());
 app.use(helmet());
 app.use(cors({
-    origin: ["https://localhost:3000"],
+    origin: ["http://localhost:5173"],
     credentials: true
 }));
 app.use(express.static(path.join(__dirname, "public")));
