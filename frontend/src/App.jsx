@@ -1,14 +1,38 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button"
+import { Routes, Route } from "react-router-dom";
+import { Toaster } from "./components/ui/sonner";
+import Navbar from "./pages/navbar";
+import Footer from "./pages/footer";
+import Home from "./pages/home";
+import Product from "./pages/product/product";
+import ProductDetails from "./pages/product/product_details";
+import Auth from "./pages/auth";
+import Signup from "./pages/auth/signup";
+import Login from "./pages/auth/login";
+import Verify from "./pages/auth/verify";
+import ForgetPassword from "./pages/auth/forget_password";
+import ResetPassword from "./pages/auth/reset_password";
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <div className="bg-green-200">
-      <div className="flex min-h-svh flex-col items-center justify-center">
-        <Button>Click me</Button>
+    <div className="font-roboto">
+      <Toaster />
+      <Navbar />
+      <div>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/product" element={<Product />}>
+            <Route path=":id" element={<ProductDetails />} />
+          </Route>
+          <Route path="/auth" element={<Auth />}>
+            <Route path="signup" element={<Signup />} />
+            <Route path="login" element={<Login />} />
+            <Route path="verify" element={<Verify />} />
+            <Route path="forget-password" element={<ForgetPassword />} />
+            <Route path="reset/:token" element={<ResetPassword />} />
+          </Route>
+        </Routes>
       </div>
+      <Footer />
     </div>
   );
 }

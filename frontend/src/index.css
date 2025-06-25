@@ -1,9 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Monda:wght@400..700&family=Roboto+Serif:ital,opsz,wght@0,8..144,100..900;1,8..144,100..900&display=swap');
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-roboto: "Monda", "sans-serif";
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -116,5 +119,16 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .no-spinner::-webkit-outer-spin-button,
+  .no-spinner::-webkit-inner-spin-button {
+    @apply appearance-none;
+    margin: 0;
+  }
+  .no-spinner {
+    @apply appearance-none;
   }
 }
