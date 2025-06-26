@@ -7,7 +7,9 @@ import Verify from "./pages/auth/verify";
 import ForgetPassword from "./pages/auth/forget_password";
 import ResetPassword from "./pages/auth/reset_password";
 import Home from "./pages/home";
-import Profile from "./pages/profile";
+import UserProfile from "./pages/userProfile";
+import Profile from "./pages/profile/profile";
+import EditProfile from "./pages/profile/edit_profile";
 
 function App() {
   return (
@@ -16,7 +18,10 @@ function App() {
       <div>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/profile/:id" element={<Profile />} />
+          <Route path="/profile" element={<UserProfile />}>
+            <Route path=":id" element={<Profile />} />
+            <Route path="edit-profile/:id" element={<EditProfile />} />
+          </Route>
           <Route path="/auth" element={<Auth />}>
             <Route path="signup" element={<Signup />} />
             <Route path="login" element={<Login />} />
