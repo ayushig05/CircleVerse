@@ -1,28 +1,22 @@
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
-import Navbar from "./pages/navbar";
-import Footer from "./pages/footer";
-import Home from "./pages/home";
-import Product from "./pages/product/product";
-import ProductDetails from "./pages/product/product_details";
 import Auth from "./pages/auth";
 import Signup from "./pages/auth/signup";
 import Login from "./pages/auth/login";
 import Verify from "./pages/auth/verify";
 import ForgetPassword from "./pages/auth/forget_password";
 import ResetPassword from "./pages/auth/reset_password";
+import Home from "./pages/home";
+import Profile from "./pages/profile";
 
 function App() {
   return (
     <div className="font-roboto">
       <Toaster />
-      <Navbar />
       <div>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/product" element={<Product />}>
-            <Route path=":id" element={<ProductDetails />} />
-          </Route>
+          <Route path="/profile/:id" element={<Profile />} />
           <Route path="/auth" element={<Auth />}>
             <Route path="signup" element={<Signup />} />
             <Route path="login" element={<Login />} />
@@ -32,7 +26,6 @@ function App() {
           </Route>
         </Routes>
       </div>
-      <Footer />
     </div>
   );
 }

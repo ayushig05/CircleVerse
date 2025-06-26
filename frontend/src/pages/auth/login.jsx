@@ -34,7 +34,6 @@ const Login = () => {
     };
     const result = await handleAuthRequest(loginReq, setIsLoading);
     if (result) {
-      console.log(result.data.data.user);
       dispatch(setAuthUser(result.data.data.user));
       toast.success(result.data.message);
       navigate("/");
