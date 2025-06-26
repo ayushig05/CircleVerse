@@ -127,7 +127,7 @@ const Verify = () => {
       <LoadingButton
         onClick={handleSubmit}
         size={"lg"}
-        className="mt-6 w-52"
+        className="mt-6 w-52 cursor-pointer"
         isLoading={isLoading}
       >
         Verify
