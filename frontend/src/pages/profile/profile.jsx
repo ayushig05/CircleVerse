@@ -81,7 +81,7 @@ const Profile = () => {
             </Sheet>
           </div>
           <div className="w-[90%] sm:w-[80%] mx-auto">
-            <div className="mt-16 flex md:flex-row flex-col md:items-center pb-8 border-b-2 md:space-x-20">
+            <div className="mt-8 flex sm:flex-row flex-col items-center justify-center pb-8 border-b-2 md:space-x-20">
               <Avatar className="w-[8rem] h-[8rem] mb-8 md:mb-0">
                 <AvatarImage
                   src={userProfile?.profilePicture}
@@ -89,8 +89,8 @@ const Profile = () => {
                 />
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
-              <div className="-ml-10">
-                <div className="flex items-center space-x-8">
+              <div className="lg:-ml-10">
+                <div className="flex sm:flex-row flex-col items-center justify-center md:space-x-8">
                   <h1 className="text-2xl font-bold">
                     {userProfile?.username}
                   </h1>
@@ -109,7 +109,7 @@ const Profile = () => {
                       {isFollowing ? "Unfollow" : "Follow"}
                     </Button>
                   )}
-                  <div className="flex items-center space-x-8 mt-6 mb-6 ml-20">
+                  <div className="flex items-center space-x-8 mt-6 mb-6">
                     <div>
                       <span className="font-bold">
                         {userProfile?.posts.length}
@@ -130,7 +130,7 @@ const Profile = () => {
                     </div>
                   </div>
                 </div>
-                <p className="w-[80%] font-medium">
+                <p className="lg:w-[80%] font-medium flex items-center justify-center lg:justify-start">
                   {userProfile?.bio || "My Profile Bio Here"}
                 </p>
               </div>
