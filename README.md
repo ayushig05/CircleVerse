@@ -22,7 +22,7 @@
 
 ## 🛠️ Tech Stack
 
-Frontend: React.js with Redux for state management
-Backend: Node.js and Express.js for RESTful API development
-Database: MongoDB with Mongoose ORM
-Other Tools & Libraries: Cloudinary (image uploads), JWT (authentication), Multer (file handling), Nodemailer (emailing), Tailwind CSS (styling), Lucide Icons (iconography), Sonner Toasts (notifications)
+ - Frontend: React.js with Redux for state management
+ - Backend: Node.js and Express.js for RESTful API development
+ - Database: MongoDB with Mongoose ORM
+ - Other Tools & Libraries: Cloudinary (image uploads), JWT (authentication), Multer (file handling), Nodemailer (emailing), Tailwind CSS (styling), Lucide Icons (iconography), Sonner Toasts (notifications)
