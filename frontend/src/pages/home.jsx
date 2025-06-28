@@ -32,7 +32,7 @@ const Home = () => {
         </div>
         <Feed />
       </div>
-      <div className="w-[23%] px-6 lg:block hidden border-l-2 h-screen">
+      <div className="w-[23%] px-6 lg:block hidden h-screen">
         <RightBar />
       </div>
     </div>

@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -15,17 +16,16 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Image from "../../assets/logo.jpg";
 import { setAuthUser } from "@/store/authSlice";
+import CreatePost from "./createPost";
 
 const LeftBar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const user = useSelector((state) => state.auth.user);
 
   const handleLogout = async () => {
-    await axios.post(`${API_URL}/users/logout`, 
-        {}, 
-        { withCredentials: true }
-    );
+    await axios.post(`${API_URL}/users/logout`, {}, { withCredentials: true });
     dispatch(setAuthUser(null));
     toast.success("Loout Successfully");
     navigate("/auth/login");
@@ -39,7 +39,10 @@ const LeftBar = () => {
       handleLogout();
     }
     if (label === "Profile") {
-        navigate(`/profile/${user?._id}`);
+      navigate(`/profile/${user?._id}`);
+    }
+    if (label === "Create") {
+      setIsDialogOpen(true);
     }
   };
 
@@ -81,6 +84,10 @@ const LeftBar = () => {
 
   return (
     <div className="h-full mt-12">
+      <CreatePost
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+      />
       <div className="lg:p-6 p-3 cursor-pointer">
         <div
           onClick={() => {

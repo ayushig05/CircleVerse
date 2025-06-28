@@ -18,12 +18,12 @@ exports.createPost = catchAsync(async(req, res, next) => {
         height: 800,
         fit: "inside",
     }).toFormat("jpeg", { quality: 80 }).toBuffer();
-    const fileUri = `data:image/jpeg;base64, ${optimizeImageBuffer.toString("base64")}`;
+    const fileUri = `data:image/jpeg;base64,${optimizeImageBuffer.toString("base64")}`;
     const cloudResponse = await uploadToCloudinary(fileUri);
     let post = await Post.create({
         caption,
         image: {
-            url: cloudResponse.source_url,
+            url: cloudResponse.secure_url,
             publicId: cloudResponse.public_id,
         },
         user: userId,
