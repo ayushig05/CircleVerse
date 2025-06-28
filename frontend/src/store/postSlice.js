@@ -23,9 +23,12 @@ const postSlice = createSlice({
         (post) => post._id === action.payload.postId
       );
       if (post) {
-        post.likes = post.likes.filter((id) => id !== action.payload.userId);
-      } else {
-        post.likes.push(action.payload.userId);
+        const hasLiked = post.likes.includes(action.payload.userId);
+        if (hasLiked) {
+          post.likes = post.likes.filter((id) => id !== action.payload.userId);
+        } else {
+          post.likes.push(action.payload.userId);
+        }
       }
     },
     addComment: (state, action) => {
@@ -39,6 +42,7 @@ const postSlice = createSlice({
   },
 });
 
-export const { setPost, addPosts, deletePosts, likeOrDislike, addComment } = postSlice.actions;
+export const { setPost, addPosts, deletePosts, likeOrDislike, addComment } =
+  postSlice.actions;
 
 export default postSlice.reducer;

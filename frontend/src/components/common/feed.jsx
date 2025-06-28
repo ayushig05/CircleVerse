@@ -2,13 +2,19 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { handleAuthRequest } from "@/utils/api";
-import { setPost } from "@/store/postSlice";
-import { Bookmark, HeartIcon, Loader, MessageCircle, Send } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import DotButton from "./dotButton";
-import Comment from "./comment";
+import { toast } from "sonner";
 const API_URL = import.meta.env.VITE_BACKEND_API;
+import { Loader, MessageCircle, Send } from "lucide-react";
+import { HeartIcon as HeartOutline } from "@heroicons/react/24/outline";
+import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
+import { BookmarkIcon as BookmarkOutline } from "@heroicons/react/24/outline";
+import { BookmarkIcon as BookmarkSolid } from "@heroicons/react/24/solid";
+import { handleAuthRequest } from "@/utils/api";
+import { addComment, likeOrDislike, setPost } from "@/store/postSlice";
+import { setAuthUser } from "@/store/authSlice";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import Comment from "./comment";
+import DotButton from "./dotButton";
 
 const Feed = () => {
   const dispatch = useDispatch();
@@ -30,11 +36,58 @@ const Feed = () => {
     getAllPost();
   }, [dispatch]);
 
-  const handleLikeDislike = async () => {};
+  const handleLikeDislike = async (id) => {
+    try {
+      const result = await axios.post(
+        `${API_URL}/posts/like-dislike/${id}`,
+        {},
+        { withCredentials: true }
+      );
+      if (result.data.status === "success") {
+        if (user?._id) {
+          dispatch(likeOrDislike({ postId: id, userId: user._id }));
+          toast.success(result.data.message);
+        }
+      }
+    } catch (error) {
+      console.error("Like/Dislike failed:", error);
+      toast.error("Failed to like/dislike post.");
+    }
+  };
 
-  const handleSaveUnsave = async () => {};
+  const handleSaveUnsave = async (postId) => {
+    try {
+      const result = await axios.post(
+        `${API_URL}/posts/save-unsave-post/${postId}`,
+        {},
+        { withCredentials: true }
+      );
+      if (result.data.status === "success") {
+        dispatch(setAuthUser(result.data.data.user));
+        toast.success(result.data.message);
+      }
+    } catch (error) {
+      console.error("Save/Unsave failed:", error);
+      toast.error("Failed to save/unsave post.");
+    }
+  };
 
-  const handleComment = async () => {};
+  const handleComment = async (postId) => {
+    if (!comment[postId]) return;
+    const addCommentReq = async () => {
+      return await axios.post(
+        `${API_URL}/posts/comment/${postId}`,
+        { text: comment[postId] },
+        { withCredentials: true }
+      );
+    };
+    const result = await handleAuthRequest(addCommentReq);
+    if (result?.data.status === "success") {
+      dispatch(addComment({ postId, comment: result?.data.data.comment }));
+      toast.success("Comment Posted");
+      setComment((prev) => ({ ...prev, [postId]: "" }));
+    }
+  };
 
   if (isLoading) {
     return (
@@ -80,24 +133,49 @@ const Feed = () => {
           </div>
           <div className="mt-3 flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <HeartIcon className="cursor-pointer" />
+              {user?._id && post.likes.includes(user._id) ? (
+                <HeartSolid
+                  className="w-6 h-6 text-red-500 cursor-pointer"
+                  onClick={() => handleLikeDislike(post._id)}
+                />
+              ) : (
+                <HeartOutline
+                  className="w-6 h-6 cursor-pointer"
+                  onClick={() => handleLikeDislike(post._id)}
+                />
+              )}
               <MessageCircle className="cursor-pointer" />
               <Send className="cursor-pointer" />
             </div>
-            <Bookmark className="cursor-pointer" />
+            {user?.savedPosts?.includes(post._id) ? (
+              <BookmarkSolid
+                onClick={() => handleSaveUnsave(post._id)}
+                className="w-6 h-6 cursor-pointer text-black"
+              />
+            ) : (
+              <BookmarkOutline
+                onClick={() => handleSaveUnsave(post._id)}
+                className="w-6 h-6 cursor-pointer"
+              />
+            )}
           </div>
           <h1 className="mt-2 text-sm font-semibold">
             {post.likes.length} likes
           </h1>
           <p className="mt-2 font-medium">{post.caption}</p>
-          <Comment post={post} user={user}/>
+          <Comment post={post} user={user} />
           <div className="mt-2 flex items-center">
             <input
               type="text"
               placeholder="Add a comment..."
               className="flex-1 placeholder:text-gray-800 outline-none"
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
+              value={comment[post._id] || ""}
+              onChange={(e) =>
+                setComment((prev) => ({
+                  ...prev,
+                  [post._id]: e.target.value,
+                }))
+              }
             />
             <p
               role="button"

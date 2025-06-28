@@ -33,7 +33,7 @@ router.post("/change-password", isAuthenticated, changePassword);
 router.get("/profile/:id", getProfile);
 router.post("/edit-profile", isAuthenticated, upload.single("profilePicture"), editProfile);
 router.get("/suggested-user", isAuthenticated, suggestedUser);
-router.post("/follow-unfollow", isAuthenticated, followUnfollow);
+router.post("/follow-unfollow/:id", isAuthenticated, followUnfollow);
 router.get("/me", isAuthenticated, getMe);
 
 module.exports = router;

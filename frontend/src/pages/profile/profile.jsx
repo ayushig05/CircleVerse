@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 import { handleAuthRequest } from "@/utils/api";
 import { Button } from "@/components/ui/button";
+import { useFollowUnfollow } from "@/hooks/useAuth";
 import LeftBar from "@/components/common/leftBar";
 import Post from "@/components/common/post";
 import Saved from "@/components/common/saved";
@@ -27,6 +28,7 @@ import Saved from "@/components/common/saved";
 const Profile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { handleFollowUnfollow } = useFollowUnfollow();
   const user = useSelector((state) => state.auth.user);
   const [postOrSave, setPostOrSave] = useState("POST");
   const [isLoading, setIsLoading] = useState(false);
@@ -105,6 +107,7 @@ const Profile = () => {
                     <Button
                       className="cursor-pointer"
                       variant={isFollowing ? "destructive" : "seccondary"}
+                      onClick={() => handleFollowUnfollow(id)}
                     >
                       {isFollowing ? "Unfollow" : "Follow"}
                     </Button>

@@ -1,7 +1,10 @@
 import React from "react";
-import LeftBar from "../components/common/leftBar";
-import Feed from "../components/common/feed";
-import RightBar from "../components/common/rightBar";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { redirect, useNavigate } from "react-router-dom";
+import { Loader, MenuIcon } from "lucide-react";
+const API_URL = import.meta.env.VITE_BACKEND_API;
 import {
   Sheet,
   SheetContent,
@@ -9,9 +12,47 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "../components/ui/sheet";
-import { MenuIcon } from "lucide-react";
+import { handleAuthRequest } from "@/utils/api";
+import { setAuthUser } from "@/store/authSlice";
+import LeftBar from "../components/common/leftBar";
+import Feed from "../components/common/feed";
+import RightBar from "../components/common/rightBar";
 
 const Home = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const getAuthUser = async () => {
+      const getAuthUserReq = async () => {
+        return await axios.get(`${API_URL}/users/me`, {
+          withCredentials: true,
+        });
+      };
+      const result = await handleAuthRequest(getAuthUserReq, setIsLoading);
+      if (result) {
+        dispatch(setAuthUser(result.data.data.user));
+      }
+    };
+    getAuthUser();
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (!user) {
+      return navigate("/auth/login");
+    }
+  }, [user]);
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center flex-col">
+        <Loader className="animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex">
       <div className="w-[16%] hidden md:block border-r-2 h-screen fixed">

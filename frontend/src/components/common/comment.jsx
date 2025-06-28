@@ -1,21 +1,41 @@
 import React from "react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+import axios from "axios";
+import { toast } from "sonner";
+const API_URL = import.meta.env.VITE_BACKEND_API;
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
+import { handleAuthRequest } from "@/utils/api";
+import { addComment } from "@/store/postSlice";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import DotButton from "./dotButton";
 import { Button } from "../ui/button";
 
 const Comment = ({ post, user }) => {
   const dispatch = useDispatch();
-  const [comment, setComment] = useState("");
+  const [comment, setComment] = useState({});
 
-  const addComment = async () => {};
+  const handleComment = async (postId) => {
+    if (!comment[postId]) return;
+    const addCommentReq = async () => {
+      return await axios.post(
+        `${API_URL}/posts/comment/${postId}`,
+        { text: comment[postId] },
+        { withCredentials: true }
+      );
+    };
+    const result = await handleAuthRequest(addCommentReq);
+    if (result?.data.status === "success") {
+      dispatch(addComment({ postId, comment: result?.data.data.comment }));
+      toast.success("Comment Posted");
+      setComment((prev) => ({ ...prev, [postId]: "" }));
+    }
+  };
 
   return (
     <div>
@@ -41,11 +61,11 @@ const Comment = ({ post, user }) => {
               <div className="flex items-center mt-8 justify-between p-4">
                 <div className="flex gap-3 items-center">
                   <Avatar>
-                    <AvatarImage src={user?.profilePicture} />
+                    <AvatarImage src={post?.user?.profilePicture} />
                     <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="font-semibold text-sm">{user?.username}</p>
+                    <p className="font-semibold text-sm">{post?.user?.username}</p>
                   </div>
                 </div>
                 <DotButton user={user} post={post} />
@@ -76,12 +96,25 @@ const Comment = ({ post, user }) => {
                 <div className="flex items-center gap-2">
                   <input
                     type="text"
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
+                    value={comment[post._id] || ""}
+                    onChange={(e) =>
+                      setComment((prev) => ({
+                        ...prev,
+                        [post._id]: e.target.value,
+                      }))
+                    }
                     placeholder="Add a comment..."
                     className="w-full outline-none border text-sm boorder-gray-300 p-2 rounded cursor-pointer"
                   />
-                  <Button variant={"outline"} className="cursor-pointer">
+                  <Button
+                    variant={"outline"}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      if (post?._id) {
+                        handleComment(post?._id);
+                      }
+                    }}
+                  >
                     Send
                   </Button>
                 </div>

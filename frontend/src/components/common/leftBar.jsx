@@ -27,7 +27,7 @@ const LeftBar = () => {
   const handleLogout = async () => {
     await axios.post(`${API_URL}/users/logout`, {}, { withCredentials: true });
     dispatch(setAuthUser(null));
-    toast.success("Loout Successfully");
+    toast.success("Logout Successfully");
     navigate("/auth/login");
   };
 
