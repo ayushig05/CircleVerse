@@ -17,12 +17,18 @@ import { setAuthUser } from "@/store/authSlice";
 import LeftBar from "../components/common/leftBar";
 import Feed from "../components/common/feed";
 import RightBar from "../components/common/rightBar";
+import DarkModeToggle from "@/components/common/darkModeToggle";
 
 const Home = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const theme = localStorage.getItem("theme");
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, []);
 
   useEffect(() => {
     const getAuthUser = async () => {
@@ -74,7 +80,14 @@ const Home = () => {
         <Feed />
       </div>
       <div className="w-[23%] px-6 lg:block hidden h-screen">
-        <RightBar />
+        <div className="flex flex-col">
+          <div className="flex justify-end">
+            <DarkModeToggle />
+          </div>
+          <div className="-mt-5">
+            <RightBar />
+          </div>
+        </div>
       </div>
     </div>
   );

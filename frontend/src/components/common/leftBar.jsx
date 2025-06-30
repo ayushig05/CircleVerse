@@ -107,7 +107,7 @@ const LeftBar = () => {
             return (
               <div
                 key={link.label}
-                className="flex items-center mb-2 p-3 rounded-lg group cursor-pointer transition-all duration-200 hover:bg-gray-100 space-x-2"
+                className="flex items-center mb-2 p-3 rounded-lg group cursor-pointer transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 space-x-2"
                 onClick={() => handleSidebar(link.label)}
               >
                 <div className="group-hover:scale-110 transition-all duration-200">

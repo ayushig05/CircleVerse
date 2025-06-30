@@ -89,10 +89,10 @@ const Verify = () => {
   }
 
   return (
-    <div className="h-screen flex items-center flex-col justify-center">
+    <form className="h-screen flex items-center flex-col justify-center">
       <MailCheck className="w-20 h-20 sm:w-32 sm:h-32 text-red-600 mb-12" />
       <h1 className="text-2xl sm:text-3xl font-bold mb-3">OTP Verification</h1>
-      <p className="mb-6 text-sm sm:text-base text-gray-600 font-medium">
+      <p className="mb-6 text-sm sm:text-base text-gray-600 dark:text-gray-300 font-medium">
         We have sent a code to {user?.email}
       </p>
       <div className="flex space-x-4">
@@ -102,7 +102,7 @@ const Verify = () => {
               type="number"
               key={index}
               maxLength={1}
-              className="sm:w-20 sm:h-20 w-10 h-10 rounded-lg bg-gray-200 text-lg sm:text-3xl font-bold outline-gray-500 text-center no-spinner"
+              className="sm:w-20 sm:h-20 w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-800 text-black dark:text-white text-lg sm:text-3xl font-bold outline-gray-500 text-center no-spinner placeholder-gray-500"
               value={otp[index] || ""}
               ref={(el) => {
                 inputRefs.current[index] = el;
@@ -114,7 +114,7 @@ const Verify = () => {
         })}
       </div>
       <div className="flex items-center mt-4 space-x-2">
-        <h1 className="text-sm sm:text-lg font-medium text-gray-700">
+        <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-gray-300">
           Didn't get the OTP code?{" "}
         </h1>
         <button
@@ -132,7 +132,7 @@ const Verify = () => {
       >
         Verify
       </LoadingButton>
-    </div>
+    </form>
   );
 };
 

@@ -71,7 +71,7 @@ const Signup = () => {
                 type="text"
                 name="username"
                 placeholder="Username"
-                className="px-4 py-3 bg-gray-200 rounded-lg w-full block outline-none"
+                className="px-4 py-3 rounded-lg w-full block outline-none bg-muted dark:bg-muted text-foreground dark:text-foreground border border-border focus:ring-2 focus:ring-ring"
                 value={formData.username}
                 onChange={handleChange}
               />
@@ -84,7 +84,7 @@ const Signup = () => {
                 type="email"
                 name="email"
                 placeholder="Email Address"
-                className="px-4 py-3 bg-gray-200 rounded-lg w-full block outline-none"
+                className="px-4 py-3 rounded-lg w-full block outline-none bg-muted dark:bg-muted text-foreground dark:text-foreground border border-border focus:ring-2 focus:ring-ring"
                 value={formData.email}
                 onChange={handleChange}
               />
@@ -109,17 +109,17 @@ const Signup = () => {
             </div>
             <LoadingButton
               size={"lg"}
-              className="w-full mt-3 bg-black text-white cursor-pointer"
+              className="w-full mt-3 bg-black text-white dark:bg-white dark:text-black cursor-pointer"
               type="submit"
               isLoading={isLoading}
             >
               Sign Up
             </LoadingButton>
           </form>
-          <h1 className="mt-4 text-lg text-gray-800">
+          <h1 className="mt-4 text-lg text-gray-800 dark:text-gray-300">
             Already have an account?{" "}
             <Link to="/auth/login">
-              <span className="text-blue-800 underline cursor-pointer font-medium">
+              <span className="text-blue-800 dark:text-blue-400 underline cursor-pointer font-medium">
                 Login Here
               </span>
             </Link>

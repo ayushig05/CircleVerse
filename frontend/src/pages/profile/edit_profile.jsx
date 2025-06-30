@@ -155,7 +155,7 @@ const EditProfile = () => {
                   <LoadingButton
                     isLoading={isPhotoLoading}
                     size={"lg"}
-                    className="bg-blue-800 mt-4"
+                    className="bg-blue-800 mt-4 cursor-pointer"
                     type="submit"
                   >
                     Change Photo
@@ -173,13 +173,13 @@ const EditProfile = () => {
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              className="w-[50%] h-14 bg-gray-200 outline-none p-4 rounded-md"
+              className="w-[50%] h-14 bg-muted dark:bg-muted text-foreground dark:text-foreground outline-none p-4 rounded-md"
             ></textarea>
             <div className="flex justify-center sm:justify-end">
               <LoadingButton
                 isLoading={isBioLoading}
                 size={"lg"}
-                className=""
+                className="cursor-pointer"
                 type="submit"
               >
                 Change Bio
@@ -188,10 +188,10 @@ const EditProfile = () => {
           </div>
         </form>
         <div className="flex flex-col justify-center sm:block">
-          <h1 className="text-2xl font-bold text-gray-900 mt-6 text-center sm:text-left">
+          <h1 className="text-2xl font-bold text-foreground dark:text-foreground mt-6 text-center sm:text-left">
             Change Password
           </h1>
-          <form className="mt-8 mb-8" onSubmit={handlePasswordChange}>
+          <form className="mt-8 mb-8 ml-2" onSubmit={handlePasswordChange}>
             <div className="w-[90%] sm:w-[45%] md:w-[40%] lg:w-[30%] mx-auto sm:mx-0">
               <Password
                 name="currentPassword"
@@ -220,7 +220,7 @@ const EditProfile = () => {
               <LoadingButton
                 isLoading={isPhotoLoading}
                 type="submit"
-                className="bg-red-700"
+                className="bg-red-700 cursor-pointer"
               >
                 Change Password
               </LoadingButton>

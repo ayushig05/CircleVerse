@@ -44,13 +44,13 @@ const Reset_password = () => {
       <h1 className="text-2xl sm:text-3xl  font-bold mb-3">
         Reset Your Password
       </h1>
-      <p className="mb-6 text-sm sm:text-base text-center text-gray-600 font-medium">
+      <p className="mb-6 text-sm sm:text-base text-center text-gray-600 dark:text-gray-300 font-medium">
         Enter your OTP and new password to reset your password
       </p>
       <input
         type="number"
         placeholder="Enter OTP"
-        className="block w-[90%] sm:w-[80%] md:w-[60%] lg:w-[40%] xl:w-[30%] mx-auto px-6 py-3 bg-gray-300 rounded-lg no-spinner outline-none"
+        className="block w-[90%] sm:w-[80%] md:w-[60%] lg:w-[40%] xl:w-[30%] mx-auto px-6 py-3 rounded-lg no-spinner outline-none bg-muted dark:bg-muted text-foreground dark:text-foreground border border-border focus:ring-2 focus:ring-ring"
         value={otp}
         onChange={(e) => setOtp(e.target.value)}
       />

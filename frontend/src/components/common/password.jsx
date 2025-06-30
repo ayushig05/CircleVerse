@@ -21,7 +21,7 @@ const Password = ({
   return (
     <>
       {label && (
-        <label className={`font-semibold mb-2 block ${labelClassName}`}>
+        <label className={`font-semibold mb-2 block text-foreground dark:text-foreground ${labelClassName}`}>
           {label}
         </label>
       )}
@@ -32,12 +32,12 @@ const Password = ({
           value={value}
           name={name}
           onChange={onChange}
-          className={`px-4 py-3 bg-gray-200 rounded-lg w-full block outline-none ${inputClassName}`}
+          className={`px-4 py-3 rounded-lg w-full block outline-none bg-muted dark:bg-muted text-foreground dark:text-foreground border border-border focus:ring-2 focus:ring-ring ${inputClassName}`}
         />
         <button
           type="button"
           onClick={toggle}
-          className={`absolute outline-none right-3 top-3 p-0 ${iconClassName}`}
+          className={`absolute outline-none right-3 top-3 p-0 text-foreground dark:text-foreground ${iconClassName}`}
         >
           {showPassword ? (
             <Eye className="h-5 w-5 cursor-pointer" />

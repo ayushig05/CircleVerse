@@ -150,7 +150,7 @@ const Feed = () => {
             {user?.savedPosts?.includes(post._id) ? (
               <BookmarkSolid
                 onClick={() => handleSaveUnsave(post._id)}
-                className="w-6 h-6 cursor-pointer text-black"
+                className="w-6 h-6 cursor-pointer"
               />
             ) : (
               <BookmarkOutline

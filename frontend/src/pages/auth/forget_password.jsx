@@ -28,18 +28,18 @@ const Forget_password = () => {
   };
 
   return (
-    <div className="flex items-center justify-center flex-col w-full h-screen">
+    <form onSubmit={handleSubmit} className="flex items-center justify-center flex-col w-full h-screen">
       <KeySquareIcon className="w-20 h-20 sm:w-32 sm:h-32 text-red-600 mb-12" />
       <h1 className="text-2xl sm:text-3xl font-bold mb-3">
         Forget Your Password?
       </h1>
-      <p className="mb-6 text-sm sm:text-base text-center text-gray-600 font-medium">
+      <p className="mb-6 text-sm sm:text-base text-center text-gray-600 dark:text-gray-300 font-medium">
         Enter your email and we will help you to reset your password
       </p>
       <input
         type="email"
         placeholder="Enter your email"
-        className="px-6 py-3.5 rounded-lg outline-none bg-gray-200 block w-[90%] sm:w-[80%] md:w-[60%] lg:w-[40%] xl:w-[30%] mx-auto"
+        className="px-6 py-3.5 rounded-lg outline-none block w-[90%] sm:w-[80%] md:w-[60%] lg:w-[40%] xl:w-[30%] mx-auto bg-muted dark:bg-muted text-foreground dark:text-foreground border border-border focus:ring-2 focus:ring-ring"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
@@ -47,11 +47,10 @@ const Forget_password = () => {
         size={"lg"}
         className="w-40 mt-4 cursor-pointer"
         isLoading={isLoading}
-        onClick={handleSubmit}
       >
         Continue
       </LoadingButton>
-    </div>
+    </form>
   );
 };
 
