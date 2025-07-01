@@ -16,6 +16,7 @@
 - 📸 View User Profiles
 - 🔍 Suggested Users
 - 📝 Edit Profile with Profile Picture Upload
+- 🌙 Dark & Light UI Modes
 - 📱 Fully Responsive Design
 
 ---
