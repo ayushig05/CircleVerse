@@ -21,11 +21,11 @@ const Verify = () => {
 
   useEffect(() => {
     if (!user) {
-        navigate("/auth/login", { replace: true });
+      navigate("/auth/login", { replace: true });
     } else if (user && user.isVerified) {
-        navigate("/", { replace: true });
+      navigate("/", { replace: true });
     } else {
-        setPageLoading(false);
+      setPageLoading(false);
     }
   }, [user, navigate]);
 
@@ -53,6 +53,10 @@ const Verify = () => {
 
   const handleSubmit = async () => {
     const otpValue = otp.join("");
+    if (otpValue.length !== 6 || otp.includes("")) {
+      toast.success("Please enter a valid 6-digit OTP");
+      return;
+    }
     const verifyReq = async () => {
       return await axios.post(
         `${API_URL}/users/verify`,
@@ -82,14 +86,14 @@ const Verify = () => {
 
   if (pageLoading) {
     return (
-        <div className="h-screen flex justify-center items-center">
-            <Loader className="w-20 h-20 animate-spin" />
-        </div>
-    )
+      <div className="h-screen flex justify-center items-center">
+        <Loader className="w-20 h-20 animate-spin" />
+      </div>
+    );
   }
 
   return (
-    <form className="h-screen flex items-center flex-col justify-center">
+    <div className="h-screen flex items-center flex-col justify-center">
       <MailCheck className="w-20 h-20 sm:w-32 sm:h-32 text-red-600 mb-12" />
       <h1 className="text-2xl sm:text-3xl font-bold mb-3">OTP Verification</h1>
       <p className="mb-6 text-sm sm:text-base text-gray-600 dark:text-gray-300 font-medium">
@@ -132,7 +136,7 @@ const Verify = () => {
       >
         Verify
       </LoadingButton>
-    </form>
+    </div>
   );
 };
 

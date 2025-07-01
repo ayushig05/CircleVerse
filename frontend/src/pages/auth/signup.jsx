@@ -27,8 +27,22 @@ const Signup = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const isStrongPassword = (password) =>
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])(?!.*\s).{8,}$/.test(
+      password
+    );
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.password !== formData.passwordConfirm) {
+      toast.success("Confirm Password do not match with Password");
+      return;
+    }
+    if (!isStrongPassword(formData.password)) {
+      return toast.success(
+        "Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a special character, and a number."
+      );
+    }
     const signupReq = async () => {
       return await axios.post(`${API_URL}/users/signup`, formData, {
         withCredentials: true,
@@ -36,10 +50,11 @@ const Signup = () => {
     };
     const result = await handleAuthRequest(signupReq, setIsLoading);
     if (result) {
-      console.log(result.data.data.user);
       dispatch(setAuthUser(result.data.data.user));
       toast.success(result.data.message);
       navigate("/auth/verify");
+    } else {
+      toast.success("Please fill in all fields.");
     }
   };
 

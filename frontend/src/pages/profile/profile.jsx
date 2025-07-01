@@ -3,7 +3,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Bookmark, Grid, Loader, MenuIcon } from "lucide-react";
+import { Bookmark, Grid, Loader, MenuIcon, UserRound } from "lucide-react";
 const API_URL = import.meta.env.VITE_BACKEND_API;
 import {
   Sheet,
@@ -24,6 +24,7 @@ import { useFollowUnfollow } from "@/hooks/useAuth";
 import LeftBar from "@/components/common/leftBar";
 import Post from "@/components/common/post";
 import Saved from "@/components/common/saved";
+import DeleteProfile from "@/components/common/deleteProfile";
 
 const Profile = () => {
   const { id } = useParams();
@@ -33,6 +34,7 @@ const Profile = () => {
   const [postOrSave, setPostOrSave] = useState("POST");
   const [isLoading, setIsLoading] = useState(false);
   const [userProfile, setUserProfile] = useState();
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const isOwnProfile = user?._id === id;
   const isFollowing = user?.following.includes(id);
@@ -89,19 +91,37 @@ const Profile = () => {
                   src={userProfile?.profilePicture}
                   className="w-full h-full rounded-full"
                 />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarFallback><UserRound size={70}/></AvatarFallback>
               </Avatar>
-              <div className="lg:-ml-10">
-                <div className="flex sm:flex-row flex-col items-center justify-center md:space-x-8">
+              <div>
+                <div className="lg:mt-5 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-4">
                   <h1 className="text-2xl font-bold">
                     {userProfile?.username}
                   </h1>
+                  <p className="block sm:hidden text-center font-medium mb-4">
+                    {userProfile?.bio || "My Profile Bio Here"}
+                  </p>
                   {isOwnProfile && (
                     <Link to={`/profile/edit-profile/${user?._id}`}>
                       <Button variant={"secondary"} className="cursor-pointer">
                         Edit Profile
                       </Button>
                     </Link>
+                  )}
+                  {isOwnProfile && (
+                    <div>
+                      <Button
+                        variant={"secondary"}
+                        className="cursor-pointer"
+                        onClick={() => setIsDeleteOpen(true)}
+                      >
+                        Delete Account
+                      </Button>
+                      <DeleteProfile
+                        isOpen={isDeleteOpen}
+                        onClose={() => setIsDeleteOpen(false)}
+                      />
+                    </div>
                   )}
                   {!isOwnProfile && (
                     <Button
@@ -112,30 +132,30 @@ const Profile = () => {
                       {isFollowing ? "Unfollow" : "Follow"}
                     </Button>
                   )}
-                  <div className="flex items-center space-x-8 mt-6 mb-6">
-                    <div>
-                      <span className="font-bold">
-                        {userProfile?.posts.length}
-                      </span>
-                      <span> Posts</span>
-                    </div>
-                    <div>
-                      <span className="font-bold">
-                        {userProfile?.followers.length}
-                      </span>
-                      <span> Followers</span>
-                    </div>
-                    <div>
-                      <span className="font-bold">
-                        {userProfile?.following.length}
-                      </span>
-                      <span> Following</span>
-                    </div>
-                  </div>
                 </div>
-                <p className="lg:w-[80%] font-medium flex items-center justify-center lg:justify-start">
+                <p className="mt-2 font-medium hidden sm:block">
                   {userProfile?.bio || "My Profile Bio Here"}
                 </p>
+                <div className="flex items-center space-x-8 mt-6">
+                  <div>
+                    <span className="font-bold">
+                      {userProfile?.posts.length}
+                    </span>
+                    <span> Posts</span>
+                  </div>
+                  <div>
+                    <span className="font-bold">
+                      {userProfile?.followers.length}
+                    </span>
+                    <span> Followers</span>
+                  </div>
+                  <div>
+                    <span className="font-bold">
+                      {userProfile?.following.length}
+                    </span>
+                    <span> Following</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

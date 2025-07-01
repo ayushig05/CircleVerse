@@ -16,7 +16,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "../../components/ui/avatar";
-import { MenuIcon } from "lucide-react";
+import { MenuIcon, UserRound } from "lucide-react";
 import LeftBar from "@/components/common/leftBar";
 import LoadingButton from "@/components/common/loader";
 import Password from "@/components/common/password";
@@ -50,6 +50,13 @@ const EditProfile = () => {
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
+      const validTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!validTypes.includes(file.type)) {
+        return toast.error("Only JPG, PNG or WEBP images are allowed.");
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        return toast.error("File size should be under 2MB.");
+      }
       const reader = new FileReader();
       reader.onload = () => {
         setSelectedImage(reader.result);
@@ -92,8 +99,24 @@ const EditProfile = () => {
     }
   };
 
+  const isStrongPassword = (password) =>
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])(?!.*\s).{8,}$/.test(
+      password
+    );
+
   const handlePasswordChange = async (e) => {
     e.preventDefault();
+    if (!currentPassword || !newPassword || !newPasswordConfirm) {
+      return toast.success("Please fill in all password fields.");
+    }
+    if (newPassword !== newPasswordConfirm) {
+      return toast.success("New passwords do not match.");
+    }
+    if (!isStrongPassword(newPassword)) {
+      return toast.error(
+        "Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a special character, and a number."
+      );
+    }
     const data = {
       currentPassword,
       newPassword,
@@ -104,7 +127,10 @@ const EditProfile = () => {
         withCredentials: true,
       });
     };
-    const result = await handleAuthRequest(updatePasswordReq, setIsPasswordLoading);
+    const result = await handleAuthRequest(
+      updatePasswordReq,
+      setIsPasswordLoading
+    );
     if (result) {
       dispatch(setAuthUser(result.data.data.user));
       toast.success(result.data.message);
@@ -140,7 +166,9 @@ const EditProfile = () => {
                   src={selectedImage || ""}
                   className="w-full h-full rounded-full"
                 />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarFallback>
+                  <UserRound size={70} />
+                </AvatarFallback>
               </Avatar>
               <div className="ml-10 mt-9">
                 <h1 className="text-2xl font-bold">{user?.username}</h1>
@@ -166,14 +194,14 @@ const EditProfile = () => {
           </div>
         </form>
         <form onSubmit={handleUpdateBio} className="border-b-2 py-5">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-10">
+          <div className="flex flex-col sm:flex-row items- justify-center gap-4 sm:gap-10">
             <label htmlFor="bio" className="block text-lg font-bold">
               Bio
             </label>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              className="w-[50%] h-14 bg-muted dark:bg-muted text-foreground dark:text-foreground outline-none p-4 rounded-md"
+              className="w-[90%] sm:w-[60%] md:w-[50%] h-14 bg-muted dark:bg-muted text-foreground dark:text-foreground outline-none p-4 rounded-md"
             ></textarea>
             <div className="flex justify-center sm:justify-end">
               <LoadingButton
@@ -218,7 +246,7 @@ const EditProfile = () => {
             </div>
             <div className="mt-6 flex justify-center sm:justify-start">
               <LoadingButton
-                isLoading={isPhotoLoading}
+                isLoading={isPasswordLoading}
                 type="submit"
                 className="bg-red-700 cursor-pointer"
               >

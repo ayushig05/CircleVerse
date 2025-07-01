@@ -47,7 +47,7 @@ exports.editProfile = catchAsync(async(req, res, next) => {
     }
     await user.save({ validateBeforeSave: false });
     return res.status(200).json({
-        message: "Profile Updated",
+        message: "Profile Updated Successfully",
         status: "success",
         data: {
             user,

@@ -80,7 +80,6 @@ exports.signup = catchAsync(async(req, res, next) => {
             "Registration Successful. Check your email for otp verification"
         );
     } catch (error) {
-        console.error("Email sending error:", error);
         await User.findByIdAndDelete(newUser.id);
         return next(new AppError("There is an error creating the account. Please try again later!", 500));
     }
@@ -198,7 +197,6 @@ exports.forgetPassword = catchAsync(async(req, res, next) => {
             message: "Password reset OTP is send to your email",
         });
     } catch (error) {
-        console.error("Forget Password error:", error);
         user.resetPasswordOTP = undefined;
         user.resetPasswordOTPExpires = undefined;
         await user.save({ validateBeforeSave: false });
@@ -241,4 +239,17 @@ exports.changePassword = catchAsync(async(req, res,next) => {
     user.passwordConfirm = newPasswordConfirm;
     await user.save();
     createSendToken(user, 200, res, "Password Changed Successfully!");
+});
+
+exports.signout = catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  const deletedUser = await User.findByIdAndDelete(userId);
+  if (!deletedUser) {
+    return next(new AppError("User not found", 404));
+  }
+  res.clearCookie("token");
+  res.status(200).json({
+    status: "success",
+    message: "Account Deleted Successfully!",
+  });
 });

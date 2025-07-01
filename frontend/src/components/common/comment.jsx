@@ -15,6 +15,7 @@ import { addComment } from "@/store/postSlice";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import DotButton from "./dotButton";
 import { Button } from "../ui/button";
+import { UserRound } from "lucide-react";
 
 const Comment = ({ post, user }) => {
   const dispatch = useDispatch();
@@ -62,7 +63,7 @@ const Comment = ({ post, user }) => {
                 <div className="flex gap-3 items-center">
                   <Avatar>
                     <AvatarImage src={post?.user?.profilePicture} />
-                    <AvatarFallback>CN</AvatarFallback>
+                    <AvatarFallback><UserRound size={20}/></AvatarFallback>
                   </Avatar>
                   <div>
                     <p className="font-semibold text-sm">{post?.user?.username}</p>

@@ -9,7 +9,7 @@ const sendEmail = async(options) => {
         },
     });
     const mailOptions = {
-        from: `"CircleVerse" Share Your Imagination`,
+        from: `"CircleVerse" <${process.env.EMAIL_USERNAME}>`, 
         to: options.email,
         subject: options.subject,
         html: options.html,

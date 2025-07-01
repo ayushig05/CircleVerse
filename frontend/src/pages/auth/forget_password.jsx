@@ -14,21 +14,31 @@ const Forget_password = () => {
   const [email, setEmail] = useState("");
 
   const handleSubmit = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      toast.success("Please enter your email");
+      return;
+    }
+    if (!emailRegex.test(email)) {
+      toast.success("Please enter a valid email address");
+      return;
+    }
     const forgetPassReq = async () => {
-      return await axios.post(`${API_URL}/users/forget-password`,
+      return await axios.post(
+        `${API_URL}/users/forget-password`,
         { email },
         { withCredentials: true }
       );
     };
     const result = await handleAuthRequest(forgetPassReq, setIsLoading);
-    if (result) {     
+    if (result) {
       toast.success(result.data.message);
       navigate(`/auth/reset-password?email=${encodeURIComponent(email)}`);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center justify-center flex-col w-full h-screen">
+    <div className="flex items-center justify-center flex-col w-full h-screen">
       <KeySquareIcon className="w-20 h-20 sm:w-32 sm:h-32 text-red-600 mb-12" />
       <h1 className="text-2xl sm:text-3xl font-bold mb-3">
         Forget Your Password?
@@ -47,10 +57,11 @@ const Forget_password = () => {
         size={"lg"}
         className="w-40 mt-4 cursor-pointer"
         isLoading={isLoading}
+        onClick={handleSubmit}
       >
         Continue
       </LoadingButton>
-    </form>
+    </div>
   );
 };
 

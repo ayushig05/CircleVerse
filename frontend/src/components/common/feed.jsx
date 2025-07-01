@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
 const API_URL = import.meta.env.VITE_BACKEND_API;
-import { Loader, MessageCircle, Send } from "lucide-react";
+import { Loader, MessageCircle, Send, UserRound } from "lucide-react";
 import { HeartIcon as HeartOutline } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import { BookmarkIcon as BookmarkOutline } from "@heroicons/react/24/outline";
@@ -116,7 +116,7 @@ const Feed = () => {
                   src={post.user?.profilePicture}
                   className="h-full w-full"
                 />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarFallback><UserRound size={20}/></AvatarFallback>
               </Avatar>
               <h1>{post.user?.username}</h1>
             </div>

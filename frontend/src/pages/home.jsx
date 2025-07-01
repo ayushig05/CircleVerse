@@ -46,10 +46,10 @@ const Home = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (!user) {
-      return navigate("/auth/login");
+    if (!isLoading && !user) {
+      navigate("/auth/login");
     }
-  }, [user]);
+  }, [user, isLoading, navigate]);
 
   if (isLoading) {
     return (

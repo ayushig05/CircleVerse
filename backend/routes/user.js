@@ -8,6 +8,7 @@ const {
   forgetPassword,
   resetPassword,
   changePassword,
+  signout,
 } = require("../controllers/auth");
 const {
   getProfile,
@@ -29,6 +30,7 @@ router.post("/logout", logout);
 router.post("/forget-password", forgetPassword);
 router.post("/reset-password", resetPassword);
 router.post("/change-password", isAuthenticated, changePassword);
+router.delete("/signout", isAuthenticated, signout);
 
 router.get("/profile/:id", getProfile);
 router.post("/edit-profile", isAuthenticated, upload.single("profilePicture"), editProfile);

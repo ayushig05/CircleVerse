@@ -6,10 +6,10 @@ import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 const API_URL = import.meta.env.VITE_BACKEND_API;
 import { handleAuthRequest } from "@/utils/api";
+import { setAuthUser } from "@/store/authSlice";
 import Image from "../../assets/logo.jpg";
 import Password from "@/components/common/password";
 import LoadingButton from "@/components/common/loader";
-import { setAuthUser } from "@/store/authSlice";
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -27,6 +27,15 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.email || !formData.password) {
+      toast.success("Email and password are required");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.success("Please enter a valid email address");
+      return;
+    }
     const loginReq = async () => {
       return await axios.post(`${API_URL}/users/login`, formData, {
         withCredentials: true,

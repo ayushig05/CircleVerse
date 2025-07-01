@@ -4,7 +4,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 const API_URL = import.meta.env.VITE_BACKEND_API;
-import { Loader } from "lucide-react";
+import { Loader, UserRound } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { handleAuthRequest } from "@/utils/api";
 
@@ -43,7 +43,7 @@ const RightBar = () => {
         <div className="flex items-center space-x-4">
           <Avatar className="w-9 h-9">
             <AvatarImage src={user?.profilePicture} />
-            <AvatarFallback>CN</AvatarFallback>
+            <AvatarFallback><UserRound size={20}/></AvatarFallback>
           </Avatar>
           <div>
             <h1 className="font-bold">{user?.username}</h1>

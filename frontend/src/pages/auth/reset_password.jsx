@@ -21,9 +21,24 @@ const Reset_password = () => {
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const isStrongPassword = (password) =>
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])(?!.*\s).{8,}$/.test(
+      password
+    );
+
   const handleSubmit = async () => {
     if (!otp || !password || !passwordConfirm) {
+      toast.success("All fields are required");
       return;
+    }
+    if (password !== passwordConfirm) {
+      toast.success("Passwords do not match");
+      return;
+    }
+    if (!isStrongPassword(password)) {
+      return toast.success(
+        "Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a special character, and a number."
+      );
     }
     const data = { email, otp, password, passwordConfirm };
     const resetPassReq = async () => {

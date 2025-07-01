@@ -12,6 +12,7 @@ import {
   MessageCircle,
   Search,
   SquarePlus,
+  UserRound,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Image from "../../assets/logo.jpg";
@@ -71,7 +72,7 @@ const LeftBar = () => {
       icon: (
         <Avatar className="w-9 h-9">
           <AvatarImage src={user?.profilePicture} className="w-full h-full" />
-          <AvatarFallback>CN</AvatarFallback>
+          <AvatarFallback><UserRound size={20} /></AvatarFallback>
         </Avatar>
       ),
       label: "Profile",

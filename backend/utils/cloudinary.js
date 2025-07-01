@@ -15,7 +15,6 @@ const uploadToCloudinary = async (fileUri) => {
     });
     return result;
   } catch (error) {
-    console.error("Upload failed:", error.message);
     throw new Error("Failed to upload image to Cloudinary");
   }
 };
