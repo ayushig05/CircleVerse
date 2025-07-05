@@ -8,7 +8,7 @@
 
 - 🔐 User Authentication (Sign Up / Login / Logout)
 - ✅ Email OTP Verification & Password Reset
-- 🖼️ Create & Share Posts (with images)
+- 🖼️ Create & Share Posts (both with images and videos)
 - ❤️ Like/Dislike Posts
 - 💬 Comment on Posts
 - 🔖 Save/Unsave Posts
