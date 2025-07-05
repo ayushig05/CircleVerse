@@ -207,3 +207,36 @@ exports.addComment = catchAsync(async(req, res, next) => {
         },
     });
 });
+
+exports.createVideoPost = catchAsync(async (req, res, next) => {
+  const { caption } = req.body;
+  const video = req.file;
+  const userId = req.user._id;
+  if (!video) {
+    return next(new AppError("Video is required for the post", 400));
+  }
+  const fileUri = `data:${video.mimetype};base64,${video.buffer.toString("base64")}`;
+  const cloudResponse = await uploadToCloudinary(fileUri, "video");
+  let post = await Post.create({
+    caption,
+    video: {
+      url: cloudResponse.secure_url,
+      publicId: cloudResponse.public_id,
+    },
+    user: userId,
+  });
+  const user = await User.findById(userId);
+  if (user) {
+    user.posts.push(post._id);
+    await user.save({ validateBeforeSave: false });
+  }
+  post = await post.populate({
+    path: "user",
+    select: "username email bio profilePicture",
+  });
+  return res.status(201).json({
+    status: "success",
+    message: "Video Post Created",
+    data: { post },
+  });
+});

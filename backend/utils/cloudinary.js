@@ -8,14 +8,20 @@ cloudinary.config({
   secure: true,
 });
 
-const uploadToCloudinary = async (fileUri) => {
+const uploadToCloudinary = async (fileUri, resourceType = "image") => {
   try {
-    const result = await cloudinary.uploader.upload(fileUri, {
-      folder: "circleverse/posts",
-    });
+    const options = {
+      folder: `circleverse/posts/${resourceType}`,
+      resource_type: resourceType,
+    };
+    if (resourceType === "video") {
+      options.transformation = [{ duration: 30 }];
+    }
+    const result = await cloudinary.uploader.upload(fileUri, options);
     return result;
   } catch (error) {
-    throw new Error("Failed to upload image to Cloudinary");
+    console.error("Cloudinary Upload Error:", error);
+    throw new Error(`Failed to upload ${resourceType} to Cloudinary`);
   }
 };
 

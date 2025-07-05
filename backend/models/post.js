@@ -10,11 +10,21 @@ const postSchema = new mongoose.Schema(
         image: {
             url: {
                 type: String,
-                required: true,
+                required: false,
             },
             publicId: {
                 type: String,
-                required: true,
+                required: false,
+            },
+        },
+        video: {
+            url: {
+                type: String,
+                required: false,
+            },
+            publicId: {
+                type: String,
+                required: false,
             },
         },
         user: {

@@ -116,20 +116,37 @@ const Feed = () => {
                   src={post.user?.profilePicture}
                   className="h-full w-full"
                 />
-                <AvatarFallback><UserRound size={20}/></AvatarFallback>
+                <AvatarFallback>
+                  <UserRound size={20} />
+                </AvatarFallback>
               </Avatar>
               <h1>{post.user?.username}</h1>
             </div>
             <DotButton post={post} user={user} />
           </div>
           <div className="mt-2">
-            <img
-              src={`${post.image?.url}`}
-              alt="Post"
-              width={400}
-              height={400}
-              className="w-full"
-            />
+            {post.image?.url ? (
+              <img
+                src={post.image.url}
+                alt="Post"
+                width={400}
+                height={400}
+                className="w-full max-h-[500px] object-contain rounded"
+              />
+            ) : post.video?.url ? (
+              <video
+                src={post.video.url}
+                autoPlay
+                loop
+                muted
+                playsInline
+                disablePictureInPicture
+                controlsList="nodownload noplaybackrate nofullscreen"
+                width={400}
+                height={400}
+                className="w-full max-h-[500px] object-contain rounded"
+              />
+            ) : null}
           </div>
           <div className="mt-3 flex items-center justify-between">
             <div className="flex items-center space-x-4">
