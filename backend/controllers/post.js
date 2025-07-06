@@ -5,6 +5,7 @@ const AppError = require("../utils/appError");
 const User = require("../models/user");
 const Post = require("../models/post");
 const Comment = require("../models/comment");
+const generateCaption = require("../utils/generateCaption");
 
 exports.createPost = catchAsync(async(req, res, next) => {
     const { caption } = req.body;
@@ -239,4 +240,59 @@ exports.createVideoPost = catchAsync(async (req, res, next) => {
     message: "Video Post Created",
     data: { post },
   });
+});
+
+// exports.getCaption = catchAsync(async (req, res, next) => {
+//   const { description } = req.body;
+//   if (!description) {
+//     return res.status(400).json({ 
+//         status: "fail", 
+//         message: "Description is required" 
+//     });
+//   }
+//   const caption = await generateCaption(description);
+//   if (!caption) {
+//     return res.status(500).json({ 
+//         status: "error", 
+//         message: "Failed to generate caption" 
+//     });
+//   }
+//   res.status(200).json({
+//     status: "success",
+//     data: { caption },
+//   });
+// });
+
+
+
+
+exports.getCaption = catchAsync(async (req, res, next) => {
+  const { description } = req.body;
+  if (!description) {
+    return res.status(400).json({ 
+        status: "fail", 
+        message: "Description is required" 
+    });
+  }
+
+  try {
+    const caption = await generateCaption(description);
+    if (!caption) {
+      return res.status(500).json({ 
+          status: "error", 
+          message: "Failed to generate caption (null returned)" 
+        });
+        console.log(error);
+    }
+    res.status(200).json({
+      status: "success",
+      data: { caption },
+    });
+  } catch (error) {
+    console.error("generateCaption failed:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Caption generation failed internally",
+    });
+  }
 });

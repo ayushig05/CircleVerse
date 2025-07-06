@@ -8,6 +8,7 @@ const {
   likeOrDislikePost,
   addComment,
   createVideoPost,
+  getCaption,
 } = require("../controllers/post");
 const isAuthenticated = require("../middleware/isAuthenticated");
 const upload = require("../middleware/multer");
@@ -22,5 +23,6 @@ router.post("/save-unsave-post/:postId", isAuthenticated, saveOrUnsavePost);
 router.delete("/delete-post/:id", isAuthenticated, deletePost);
 router.post("/like-dislike/:id", isAuthenticated, likeOrDislikePost);
 router.post("/comment/:id", isAuthenticated, addComment);
+router.post("/generate-caption", getCaption);
 
 module.exports = router;

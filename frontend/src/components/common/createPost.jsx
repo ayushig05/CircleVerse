@@ -65,7 +65,8 @@ const CreatePost = ({ isOpen, onClose }) => {
     const formData = new FormData();
     formData.append("caption", caption);
     formData.append(fileType, selectedFile);
-    const endpoint = (fileType === "image") ? "/posts/create-post" : "/posts/create-video-post";
+    const endpoint =
+      fileType === "image" ? "/posts/create-post" : "/posts/create-video-post";
     const createPostReq = async () => {
       return await axios.post(`${API_URL}${endpoint}`, formData, {
         withCredentials: true,
@@ -81,6 +82,28 @@ const CreatePost = ({ isOpen, onClose }) => {
       onClose();
       navigate("/");
       window.location.reload();
+    }
+  };
+
+  const handleGenerateCaption = async () => {
+    if (!selectedFile) {
+      toast.error("Please upload media first.");
+      return;
+    }
+    const filename = selectedFile?.name;
+    try {
+      const res = await axios.post(`${API_URL}/posts/generate-caption`, {
+        description: filename,
+      });
+      if (res.data?.data?.caption) {
+        setCaption(res.data.data.caption);
+        toast.success("AI caption generated!");
+      } else {
+        toast.error("Failed to generate caption");
+      }
+    } catch (error) {
+      toast.error("Error generating caption");
+      console.error("Caption error:", error);
     }
   };
 
@@ -104,13 +127,22 @@ const CreatePost = ({ isOpen, onClose }) => {
                 />
               )}
             </div>
-            <input
-              type="text"
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              placeholder="Write a caption..."
-              className="mt-4 p-2 border rounded-md w-full text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
-            />
+            <div className="flex flex-col sm:flex-row w-full gap-4 items-center mt-4">
+              <input
+                type="text"
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+                placeholder="Write a caption..."
+                className="p-2 border rounded-md w-full sm:w-[78%] bg-muted dark:bg-muted text-foreground dark:text-foreground focus:outline-none focus:ring-2 focus:ring-blue-600"
+              />
+              <Button
+                disabled={isLoading}
+                className="w-full sm:w-[22%] bg-purple-600 text-white text-xs hover:bg-purple-700 cursor-pointer"
+                onClick={handleGenerateCaption}
+              >
+                Generate with AI
+              </Button>
+            </div>
             <div className="flex space-x-4 mt-4">
               <LoadingButton
                 className="bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
