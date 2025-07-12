@@ -32,6 +32,9 @@ app.use((req, res, next) => {
     next();
 });
 
+app.get("/", (req, res) => {
+    res.send("Backend is up and running!");
+});
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/posts", postRouter);
 // app.all("*", (req, res, next) => {
