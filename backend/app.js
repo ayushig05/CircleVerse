@@ -20,7 +20,7 @@ app.use(
   cors({
     origin: [
         "http://localhost:5173", 
-        "https://circle-verse.vercel.app/"
+        "https://circle-verse.vercel.app"
     ],
     credentials: true,
   })
