@@ -11,9 +11,11 @@ exports.getProfile = catchAsync(async (req, res, next) => {
     ).populate({
         path: 'posts',
         options: { sort: { createdAt: -1 } },
+        match: req.user.role === 'celebrity' ? {} : null,
     }).populate({
         path: "savedPosts",
         options: { sort: { createdAt: -1 } },
+        match: req.user.role === 'celebrity' ? {} : null,
     });
     if (!user) {
         return next(new AppError("User not found", 404));
@@ -45,6 +47,9 @@ exports.editProfile = catchAsync(async(req, res, next) => {
     if (profilePicture) {
         user.profilePicture = cloudResponse.secure_url;
     }
+    if ("role" in req.body) {
+        return next(new AppError("You are not allowed to change your role", 403));
+    }
     await user.save({ validateBeforeSave: false });
     return res.status(200).json({
         message: "Profile Updated Successfully",
@@ -57,7 +62,10 @@ exports.editProfile = catchAsync(async(req, res, next) => {
 
 exports.suggestedUser = catchAsync(async(req, res, next) => {
     const loginUserId = req.user.id;
-    const users = await User.find({ _id: { $ne: loginUserId } }).select(
+    const users = await User.find({ 
+        _id: { $ne: loginUserId }, 
+        role: "celebrity" 
+    }).select(
         "-password -otp -otpExpires -resetPasswordOTP -resetPasswordOTPExpires -passwordConfirm"
     );
     res.status(200).json({
@@ -77,6 +85,9 @@ exports.followUnfollow = catchAsync(async(req, res, next) => {
     const targetUser = await User.findById(targetUserId);
     if (!targetUser) {
         return next(new AppError("User not found", 404));
+    }
+    if (targetUser.role !== "celebrity") {
+        return next(new AppError("You can only follow users with celebrity role", 403));
     }
     const isFollowing = targetUser.followers.includes(loginUserId);
     if (isFollowing) {

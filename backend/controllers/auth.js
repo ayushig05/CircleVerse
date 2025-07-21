@@ -46,10 +46,16 @@ const createSendToken = (user, statusCode, res, message) => {
 };
 
 exports.signup = catchAsync(async(req, res, next) => {
-    const {email, password, passwordConfirm, username} = req.body;
+    const {email, password, passwordConfirm, username, role} = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
         return next(new AppError("Email already registered", 404));
+    }
+    if (!role) {
+        return next(new AppError("Role is required", 400));
+    }
+    if (!["celebrity", "public"].includes(role)) {
+        return next(new AppError("Role must be either 'celebrity' or 'public'", 400));
     }
     const otp = generateOTP();
     const otpExpires = Date.now() + 24 * 60 * 60 * 1000;
@@ -60,6 +66,7 @@ exports.signup = catchAsync(async(req, res, next) => {
         passwordConfirm,
         otp,
         otpExpires,
+        role
     });
     const htmlTemplate = loadTemplate("otpTemplate.hbs", {
         title: "OTP Verfication",

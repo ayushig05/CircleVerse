@@ -210,89 +210,64 @@ exports.addComment = catchAsync(async(req, res, next) => {
 });
 
 exports.createVideoPost = catchAsync(async (req, res, next) => {
-  const { caption } = req.body;
-  const video = req.file;
-  const userId = req.user._id;
-  if (!video) {
-    return next(new AppError("Video is required for the post", 400));
-  }
-  const fileUri = `data:${video.mimetype};base64,${video.buffer.toString("base64")}`;
-  const cloudResponse = await uploadToCloudinary(fileUri, "video");
-  let post = await Post.create({
-    caption,
-    video: {
-      url: cloudResponse.secure_url,
-      publicId: cloudResponse.public_id,
-    },
-    user: userId,
-  });
-  const user = await User.findById(userId);
-  if (user) {
-    user.posts.push(post._id);
-    await user.save({ validateBeforeSave: false });
-  }
-  post = await post.populate({
-    path: "user",
-    select: "username email bio profilePicture",
-  });
-  return res.status(201).json({
-    status: "success",
-    message: "Video Post Created",
-    data: { post },
-  });
+    const { caption } = req.body;
+    const video = req.file;
+    const userId = req.user._id;
+    if (!video) {
+        return next(new AppError("Video is required for the post", 400));
+    }
+    const fileUri = `data:${video.mimetype};base64,${video.buffer.toString("base64")}`;
+    const cloudResponse = await uploadToCloudinary(fileUri, "video");
+    let post = await Post.create({
+        caption,
+        video: {
+            url: cloudResponse.secure_url,
+            publicId: cloudResponse.public_id,
+        },
+        user: userId,
+    });
+    const user = await User.findById(userId);
+    if (user) {
+        user.posts.push(post._id);
+        await user.save({ validateBeforeSave: false });
+    }
+    post = await post.populate({
+        path: "user",
+        select: "username email bio profilePicture",
+    });
+    return res.status(201).json({
+        status: "success",
+        message: "Video Post Created",
+        data: { post },
+    });
 });
 
-// exports.getCaption = catchAsync(async (req, res, next) => {
-//   const { description } = req.body;
-//   if (!description) {
-//     return res.status(400).json({ 
-//         status: "fail", 
-//         message: "Description is required" 
-//     });
-//   }
-//   const caption = await generateCaption(description);
-//   if (!caption) {
-//     return res.status(500).json({ 
-//         status: "error", 
-//         message: "Failed to generate caption" 
-//     });
-//   }
-//   res.status(200).json({
-//     status: "success",
-//     data: { caption },
-//   });
-// });
-
-
-
-
 exports.getCaption = catchAsync(async (req, res, next) => {
-  const { description } = req.body;
-  if (!description) {
-    return res.status(400).json({ 
-        status: "fail", 
-        message: "Description is required" 
-    });
-  }
-
-  try {
-    const caption = await generateCaption(description);
-    if (!caption) {
-      return res.status(500).json({ 
-          status: "error", 
-          message: "Failed to generate caption (null returned)" 
+    const { description } = req.body;
+    if (!description) {
+        return res.status(400).json({ 
+            status: "fail", 
+            message: "Description is required" 
         });
-        console.log(error);
     }
-    res.status(200).json({
-      status: "success",
-      data: { caption },
-    });
-  } catch (error) {
-    console.error("generateCaption failed:", error);
-    res.status(500).json({
-      status: "error",
-      message: "Caption generation failed internally",
-    });
-  }
+    try {
+        const caption = await generateCaption(description);
+        if (!caption) {
+            return res.status(500).json({ 
+                status: "error", 
+                message: "Failed to generate caption (null returned)" 
+            });
+            console.log(error);
+        }
+        res.status(200).json({
+            status: "success",
+            data: { caption },
+        });
+    } catch (error) {
+        console.error("generateCaption failed:", error);
+        res.status(500).json({
+            status: "error",
+            message: "Caption generation failed internally",
+        });
+    }
 });
