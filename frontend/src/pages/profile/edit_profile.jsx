@@ -1,7 +1,7 @@
 import React from "react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 const API_URL = import.meta.env.VITE_BACKEND_API;
 import {
@@ -27,6 +27,7 @@ import { toast } from "sonner";
 const EditProfile = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
   const [bio, setBio] = useState(user?.bio || "");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -40,6 +41,23 @@ const EditProfile = () => {
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
 
   const fileInputRef = useRef([]);
+
+  useEffect(() => {
+    if (!user) {
+      toast.success("Please login to access this page.");
+      navigate("/auth/login");
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    if (!user) {
+      toast.success("Please login to access this page.");
+      navigate("/auth/login");
+    } else if (id && user._id !== id) {
+      toast.success("Unauthorized access.");
+      navigate("/");
+    }
+  }, [user, id, navigate]);
 
   const handleAvatar = () => {
     if (fileInputRef.current) {

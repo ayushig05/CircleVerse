@@ -97,6 +97,11 @@ const Profile = () => {
                 <div className="lg:mt-5 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-4">
                   <h1 className="text-2xl font-bold">
                     {userProfile?.username}
+                    {userProfile?.role && (
+                      <span className="text-xs ml-2 px-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white uppercase">
+                        {userProfile.role}
+                      </span>
+                    )}
                   </h1>
                   <p className="block sm:hidden text-center font-medium mb-4">
                     {userProfile?.bio || "My Profile Bio Here"}
@@ -123,15 +128,15 @@ const Profile = () => {
                       />
                     </div>
                   )}
-                  {!isOwnProfile && (
-                    <Button
-                      className="cursor-pointer"
-                      variant={isFollowing ? "destructive" : "seccondary"}
-                      onClick={() => handleFollowUnfollow(id)}
-                    >
-                      {isFollowing ? "Unfollow" : "Follow"}
-                    </Button>
-                  )}
+                  {!isOwnProfile && user?.role === "public" && userProfile?.role === "celebrity" && (
+                      <Button
+                        className="cursor-pointer"
+                        variant={isFollowing ? "destructive" : "secondary"}
+                        onClick={() => handleFollowUnfollow(id)}
+                      >
+                        {isFollowing ? "Unfollow" : "Follow"}
+                      </Button>
+                    )}
                 </div>
                 <p className="mt-2 font-medium hidden sm:block">
                   {userProfile?.bio || "My Profile Bio Here"}
@@ -171,19 +176,23 @@ const Profile = () => {
                 <Grid />
                 <span className="font-semibold">Post</span>
               </div>
-              <div
-                className={cn(
-                  "flex items-center space-x-2 cursor-pointer",
-                  postOrSave === "SAVE" && "text-blue-500"
-                )}
-                onClick={() => setPostOrSave("SAVE")}
-              >
-                <Bookmark />
-                <span className="font-semibold">Saved</span>
-              </div>
+              {userProfile?.role === "public" && (
+                <div
+                  className={cn(
+                    "flex items-center space-x-2 cursor-pointer",
+                    postOrSave === "SAVE" && "text-blue-500"
+                  )}
+                  onClick={() => setPostOrSave("SAVE")}
+                >
+                  <Bookmark />
+                  <span className="font-semibold">Saved</span>
+                </div>
+              )}
             </div>
             {postOrSave === "POST" && <Post userProfile={userProfile} />}
-            {postOrSave === "SAVE" && <Saved userProfile={userProfile} />}
+            {postOrSave === "SAVE" && userProfile?.role === "public" && (
+              <Saved userProfile={userProfile} />
+            )}
           </div>
         </div>
       </div>

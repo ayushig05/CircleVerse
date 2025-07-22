@@ -11,11 +11,11 @@ exports.getProfile = catchAsync(async (req, res, next) => {
     ).populate({
         path: 'posts',
         options: { sort: { createdAt: -1 } },
-        match: req.user.role === 'celebrity' ? {} : null,
+        match: (req.user?.role === 'celebrity') ? {} : { _id: { $exists: true } }
     }).populate({
         path: "savedPosts",
         options: { sort: { createdAt: -1 } },
-        match: req.user.role === 'celebrity' ? {} : null,
+        match: (req.user?.role === 'celebrity') ? {} : { _id: { $exists: true } }
     });
     if (!user) {
         return next(new AppError("User not found", 404));
@@ -32,6 +32,13 @@ exports.editProfile = catchAsync(async(req, res, next) => {
     const userId = req.user.id;
     const { bio } = req.body;
     const profilePicture = req.file;
+    const editableFields = ["bio"];
+    const requestFields = Object.keys(req.body);
+    for (let field of requestFields) {
+        if (!editableFields.includes(field)) {
+            return next(new AppError(`You are not allowed to update the field: ${field}`, 403));
+        }
+    }
     let cloudResponse;
     if (profilePicture) {
         const fileUri = getDataUri(profilePicture);
@@ -46,9 +53,6 @@ exports.editProfile = catchAsync(async(req, res, next) => {
     }
     if (profilePicture) {
         user.profilePicture = cloudResponse.secure_url;
-    }
-    if ("role" in req.body) {
-        return next(new AppError("You are not allowed to change your role", 403));
     }
     await user.save({ validateBeforeSave: false });
     return res.status(200).json({
@@ -97,7 +101,7 @@ exports.followUnfollow = catchAsync(async(req, res, next) => {
                 { $pull: { following: targetUserId } }
             ),
             User.updateOne(
-                { _id: targetUser },
+                { _id: targetUserId },
                 { $pull: { followers: loginUserId } }
             ),
         ]);

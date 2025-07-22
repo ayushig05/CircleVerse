@@ -19,10 +19,6 @@ function App() {
       <div>
         <Routes>
           <Route path="/" element={<Home />} />
-          {/* <Route path="/profile" element={<UserProfile />}>
-            <Route path=":id" element={<Profile />} />
-            <Route path="edit-profile/:id" element={<EditProfile />} />
-          </Route> */}
           <Route path="/auth" element={<Auth />}>
             <Route path="signup" element={<Signup />} />
             <Route path="login" element={<Login />} />
@@ -43,7 +39,7 @@ function App() {
               }
             />
             <Route path="edit-profile/:id" element={
-                <ProtectedRoute allowedRoles={["celebrity"]}>
+                <ProtectedRoute allowedRoles={["celebrity", "public"]}>
                   <EditProfile />
                 </ProtectedRoute>
               }
