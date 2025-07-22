@@ -26,6 +26,9 @@ const Verify = () => {
       navigate("/", { replace: true });
     } else {
       setPageLoading(false);
+      setTimeout(() => {
+        inputRefs.current[0]?.focus();
+      }, 100);
     }
   }, [user, navigate]);
 
@@ -99,43 +102,51 @@ const Verify = () => {
       <p className="mb-6 text-sm sm:text-base text-gray-600 dark:text-gray-300 font-medium">
         We have sent a code to {user?.email}
       </p>
-      <div className="flex space-x-4">
-        {[0, 1, 2, 3, 4, 5].map((index) => {
-          return (
-            <input
-              type="number"
-              key={index}
-              maxLength={1}
-              className="sm:w-20 sm:h-20 w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-800 text-black dark:text-white text-lg sm:text-3xl font-bold outline-gray-500 text-center no-spinner placeholder-gray-500"
-              value={otp[index] || ""}
-              ref={(el) => {
-                inputRefs.current[index] = el;
-              }}
-              onKeyDown={(e) => handleKeyDown(index, e)}
-              onChange={(e) => handleChange(index, e)}
-            />
-          );
-        })}
-      </div>
-      <div className="flex items-center mt-4 space-x-2">
-        <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-gray-300">
-          Didn't get the OTP code?{" "}
-        </h1>
-        <button
-          onClick={handleResendOtp}
-          className="text-sm sm:text-lg font-medium text-blue-900 underline cursor-pointer"
-        >
-          Resend Code
-        </button>
-      </div>
-      <LoadingButton
-        onClick={handleSubmit}
-        size={"lg"}
-        className="mt-6 w-52 cursor-pointer"
-        isLoading={isLoading}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+        className="flex flex-col items-center"
       >
-        Verify
-      </LoadingButton>
+        <div className="flex space-x-4">
+          {[0, 1, 2, 3, 4, 5].map((index) => {
+            return (
+              <input
+                type="number"
+                key={index}
+                maxLength={1}
+                className="sm:w-20 sm:h-20 w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-800 text-black dark:text-white text-lg sm:text-3xl font-bold outline-gray-500 text-center no-spinner placeholder-gray-500"
+                value={otp[index] || ""}
+                ref={(el) => {
+                  inputRefs.current[index] = el;
+                }}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                onChange={(e) => handleChange(index, e)}
+              />
+            );
+          })}
+        </div>
+        <div className="flex items-center mt-4 space-x-2">
+          <h1 className="text-sm sm:text-lg font-medium text-gray-700 dark:text-gray-300">
+            Didn't get the OTP code?{" "}
+          </h1>
+          <button
+            onClick={handleResendOtp}
+            className="text-sm sm:text-lg font-medium text-blue-900 underline cursor-pointer"
+          >
+            Resend Code
+          </button>
+        </div>
+        <LoadingButton
+          type="submit"
+          size={"lg"}
+          className="mt-6 w-52 cursor-pointer"
+          isLoading={isLoading}
+        >
+          Verify
+        </LoadingButton>
+      </form>
     </div>
   );
 };

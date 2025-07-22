@@ -10,6 +10,7 @@ import Home from "./pages/home";
 import UserProfile from "./pages/userProfile";
 import Profile from "./pages/profile/profile";
 import EditProfile from "./pages/profile/edit_profile";
+import ProtectedRoute from "./components/common/protectedRoutes";
 
 function App() {
   return (
@@ -18,16 +19,35 @@ function App() {
       <div>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/profile" element={<UserProfile />}>
+          {/* <Route path="/profile" element={<UserProfile />}>
             <Route path=":id" element={<Profile />} />
             <Route path="edit-profile/:id" element={<EditProfile />} />
-          </Route>
+          </Route> */}
           <Route path="/auth" element={<Auth />}>
             <Route path="signup" element={<Signup />} />
             <Route path="login" element={<Login />} />
             <Route path="verify" element={<Verify />} />
             <Route path="forget-password" element={<ForgetPassword />} />
             <Route path="reset-password" element={<ResetPassword />} />
+          </Route>
+          <Route path="/profile" element={
+              <ProtectedRoute>
+                <UserProfile />
+              </ProtectedRoute>
+            }
+          >
+            <Route path=":id" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="edit-profile/:id" element={
+                <ProtectedRoute allowedRoles={["celebrity"]}>
+                  <EditProfile />
+                </ProtectedRoute>
+              }
+            />
           </Route>
         </Routes>
       </div>
