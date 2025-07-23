@@ -26,11 +26,13 @@ const Feed = () => {
   useEffect(() => {
     const getAllPost = async () => {
       const getAllPostReq = async () => {
-        return await axios.get(`${API_URL}/posts/all`);
+        return await axios.get(`${API_URL}/posts/all`, 
+          { withCredentials: true }
+        );
       };
       const result = await handleAuthRequest(getAllPostReq, setIsLoading);
       if (result) {
-        dispatch(setPost(result.data.data.posts));
+        dispatch(setPost(result.data.data.visiblePosts));
       }
     };
     getAllPost();

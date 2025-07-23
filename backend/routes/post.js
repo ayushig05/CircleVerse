@@ -16,9 +16,9 @@ const restrictTo = require("../middleware/restrictTo");
 
 const router = express.Router();
 
-router.post("/create-post", isAuthenticated, restrictTo("celebrity"), upload.single("image"), createPost);
+router.post("/create-post", isAuthenticated, upload.single("image"), createPost);
 router.post("/create-video-post", isAuthenticated, restrictTo("celebrity"), upload.single("video"), createVideoPost);
-router.get("/all", getAllPost);
+router.get("/all", isAuthenticated, getAllPost);
 router.get("/user-post/:id", getUserPosts);
 router.post("/save-unsave-post/:postId", isAuthenticated, saveOrUnsavePost);
 router.delete("/delete-post/:id", isAuthenticated, deletePost);

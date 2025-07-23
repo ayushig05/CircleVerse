@@ -1,46 +1,25 @@
 import React from "react";
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import axios from "axios";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-const API_URL = import.meta.env.VITE_BACKEND_API;
 import {
   Heart,
   HomeIcon,
-  LogOut,
   MessageCircle,
   Search,
   SquarePlus,
-  UserRound,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Image from "../../assets/logo.jpg";
-import { setAuthUser } from "@/store/authSlice";
 import CreatePost from "./createPost";
 
 const LeftBar = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const user = useSelector((state) => state.auth.user);
-
-  const handleLogout = async () => {
-    await axios.post(`${API_URL}/users/logout`, {}, { withCredentials: true });
-    dispatch(setAuthUser(null));
-    toast.success("Logout Successfully");
-    navigate("/auth/login");
-  };
 
   const handleSidebar = (label) => {
     if (label === "Home") {
       navigate("/");
-    }
-    if (label === "Logout") {
-      handleLogout();
-    }
-    if (label === "Profile") {
-      navigate(`/profile/${user?._id}`);
     }
     if (label === "Create") {
       setIsDialogOpen(true);
@@ -67,19 +46,6 @@ const LeftBar = () => {
     {
       icon: <SquarePlus />,
       label: "Create",
-    },
-    {
-      icon: (
-        <Avatar className="w-9 h-9">
-          <AvatarImage src={user?.profilePicture} className="w-full h-full" />
-          <AvatarFallback><UserRound size={20} /></AvatarFallback>
-        </Avatar>
-      ),
-      label: "Profile",
-    },
-    {
-      icon: <LogOut />,
-      label: "Logout",
     },
   ];
 

@@ -47,23 +47,31 @@ exports.createPost = catchAsync(async(req, res, next) => {
     });
 });
 
-exports.getAllPost = catchAsync(async(req, res, next) => {
-    const posts = await Post.find().populate({
-        path: "user",
-        select: "username profilePicture bio",
-    }).populate({
-        path: "comments",
-        select: "text user",
-        populate: {
-            path: "user",
-            select: "username profilePicture",
-        },
-    }).sort({ createdAt: -1 });
-    return res.status(200).json({
+exports.getAllPost = catchAsync(async (req, res, next) => {
+    const loginUserId = req.user.id;
+    const currentUser = await User.findById(loginUserId).select("following role");
+    let visiblePosts;
+    if (req.user.role === "celebrity") {
+        visiblePosts = await Post.find({
+            user: loginUserId,
+        })
+        .populate("user", "username profilePicture role")
+        .sort({ createdAt: -1 });
+    } else {
+        visiblePosts = await Post.find({ 
+            $or: [
+                { user: loginUserId },
+                { "user.role": "celebrity" },
+                { user: { $in: currentUser.following } },
+            ],
+        })
+        .populate("user", "username profilePicture role")
+        .sort({ createdAt: -1 });
+    }
+    res.status(200).json({ 
         status: "success",
-        results: posts.length,
         data: {
-            posts,
+            visiblePosts,
         },
     });
 });

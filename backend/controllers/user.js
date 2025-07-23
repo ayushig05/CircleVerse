@@ -66,11 +66,8 @@ exports.editProfile = catchAsync(async(req, res, next) => {
 
 exports.suggestedUser = catchAsync(async(req, res, next) => {
     const loginUserId = req.user.id;
-    const users = await User.find({ 
-        _id: { $ne: loginUserId }, 
-        role: "celebrity" 
-    }).select(
-        "-password -otp -otpExpires -resetPasswordOTP -resetPasswordOTPExpires -passwordConfirm"
+    const users = await User.find({ _id: { $ne: loginUserId } }).select(
+        "username bio profilePicture role"
     );
     res.status(200).json({
         status: "success",
@@ -80,51 +77,115 @@ exports.suggestedUser = catchAsync(async(req, res, next) => {
     });
 });
 
-exports.followUnfollow = catchAsync(async(req, res, next) => {
-    const loginUserId = req.user._id;
-    const targetUserId = req.params.id;
-    if (loginUserId.toString() === targetUserId) {
-        return next(new AppError("You cannot follow/unfollow yourself", 400));
-    }
-    const targetUser = await User.findById(targetUserId);
-    if (!targetUser) {
-        return next(new AppError("User not found", 404));
-    }
-    if (targetUser.role !== "celebrity") {
-        return next(new AppError("You can only follow users with celebrity role", 403));
-    }
-    const isFollowing = targetUser.followers.includes(loginUserId);
-    if (isFollowing) {
-        await Promise.all([
-            User.updateOne(
-                { _id: loginUserId },
-                { $pull: { following: targetUserId } }
-            ),
-            User.updateOne(
-                { _id: targetUserId },
-                { $pull: { followers: loginUserId } }
-            ),
-        ]);
-    } else {
-        await Promise.all([
-            User.updateOne(
-                { _id: loginUserId },
-                { $addToSet: { following: targetUserId } }
-            ),
-            User.updateOne(
-                { _id: targetUserId },
-                { $addToSet: { followers: loginUserId } }
-            ),
-        ]);;
-    }
-    const updatedLoggedInUser = await User.findById(loginUserId).select("-password");
-    res.status(200).json({
-        message: isFollowing ? "Unfollowed Successfully" : "Followed Sucessfully",
-        status: "success",
-        data: {
-            user: updatedLoggedInUser,
-        },
-    });
+// exports.followUnfollow = catchAsync(async(req, res, next) => {
+//     const loginUserId = req.user._id;
+//     const targetUserId = req.params.id;
+//     if (loginUserId.toString() === targetUserId) {
+//         return next(new AppError("You cannot follow/unfollow yourself", 400));
+//     }
+//     const targetUser = await User.findById(targetUserId);
+//     if (!targetUser) {
+//         return next(new AppError("User not found", 404));
+//     }
+//     if (targetUser.role !== "celebrity") {
+//         return next(new AppError("You can only follow users with celebrity role", 403));
+//     }
+//     const isFollowing = targetUser.followers.includes(loginUserId);
+//     if (isFollowing) {
+//         await Promise.all([
+//             User.updateOne(
+//                 { _id: loginUserId },
+//                 { $pull: { following: targetUserId } }
+//             ),
+//             User.updateOne(
+//                 { _id: targetUserId },
+//                 { $pull: { followers: loginUserId } }
+//             ),
+//         ]);
+//     } else {
+//         await Promise.all([
+//             User.updateOne(
+//                 { _id: loginUserId },
+//                 { $addToSet: { following: targetUserId } }
+//             ),
+//             User.updateOne(
+//                 { _id: targetUserId },
+//                 { $addToSet: { followers: loginUserId } }
+//             ),
+//         ]);;
+//     }
+//     const updatedLoggedInUser = await User.findById(loginUserId).select("-password");
+//     res.status(200).json({
+//         message: isFollowing ? "Unfollowed Successfully" : "Followed Sucessfully",
+//         status: "success",
+//         data: {
+//             user: updatedLoggedInUser,
+//         },
+//     });
+// });
+
+exports.followUnfollow = catchAsync(async (req, res, next) => {
+  const loginUserId = req.user._id;
+  const targetUserId = req.params.id;
+
+  // Prevent self-follow
+  if (loginUserId.toString() === targetUserId) {
+    return next(new AppError("You cannot follow/unfollow yourself", 400));
+  }
+
+  const [loginUser, targetUser] = await Promise.all([
+    User.findById(loginUserId).select("role following"),
+    User.findById(targetUserId).select("role followers"),
+  ]);
+
+  if (!targetUser) {
+    return next(new AppError("Target user not found", 404));
+  }
+
+  // Block celebrities from following/unfollowing anyone
+  if (loginUser.role === "celebrity") {
+    return next(
+      new AppError("Celebrity users are not allowed to follow or unfollow", 403)
+    );
+  }
+
+  const isFollowing = loginUser.following.includes(targetUserId);
+
+  if (isFollowing) {
+    await Promise.all([
+      User.updateOne(
+        { _id: loginUserId },
+        { $pull: { following: targetUserId } }
+      ),
+      User.updateOne(
+        { _id: targetUserId },
+        { $pull: { followers: loginUserId } }
+      ),
+    ]);
+  } else {
+    await Promise.all([
+      User.updateOne(
+        { _id: loginUserId },
+        { $addToSet: { following: targetUserId } }
+      ),
+      User.updateOne(
+        { _id: targetUserId },
+        { $addToSet: { followers: loginUserId } }
+      ),
+    ]);
+  }
+
+  const updatedLoggedInUser = await User.findById(loginUserId).select("-password");
+
+  res.status(200).json({
+    message: isFollowing
+      ? "Unfollowed Successfully"
+      : "Followed Successfully",
+    status: "success",
+    data: {
+      user: updatedLoggedInUser,
+    },
+  });
 });
 
 exports.getMe = catchAsync(async(req, res, next) => {

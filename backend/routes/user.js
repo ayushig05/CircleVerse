@@ -35,7 +35,7 @@ router.delete("/signout", isAuthenticated, signout);
 
 router.get("/profile/:id", isAuthenticated, getProfile);
 router.post("/edit-profile", isAuthenticated, upload.single("profilePicture"), restrictTo("celebrity", "public"), editProfile);
-router.get("/suggested-user", isAuthenticated, restrictTo("public"), suggestedUser);
+router.get("/suggested-user", isAuthenticated, suggestedUser);
 router.post("/follow-unfollow/:id", isAuthenticated, restrictTo("public"), followUnfollow);
 router.get("/me", isAuthenticated, getMe);
 
