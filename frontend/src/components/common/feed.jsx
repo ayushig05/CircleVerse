@@ -19,7 +19,7 @@ import DotButton from "./dotButton";
 const Feed = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  const posts = useSelector((state) => state.posts.posts);
+  const posts = useSelector((state) => state.posts.posts) || [];
   const [comment, setComment] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -99,7 +99,7 @@ const Feed = () => {
     );
   }
 
-  if (posts.length < 1) {
+  if (!Array.isArray(posts) || posts.length === 0) {
     return (
       <div className="text-3xl m-8 text-center capitalize font-bold">
         No Posts

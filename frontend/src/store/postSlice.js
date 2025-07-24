@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-const API_URL = import.meta.env.VITE_BACKEND_API;
 
 const initialState = {
   posts: [],
