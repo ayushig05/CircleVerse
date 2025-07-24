@@ -157,9 +157,16 @@ exports.deletePost = catchAsync(async(req, res, next) => {
 exports.likeOrDislikePost = catchAsync(async(req, res, next) => {
     const { id } = req.params;
     const userId = req.user._id;
-    const post = await Post.findById(id);
+    const currentUserRole = req.user.role;
+    const post = await Post.findById(id).populate("user", "role");
     if (!post) {
         return next(new AppError("Post not found", 404));
+    }
+    const postOwnerRole = post.user.role;
+    if (currentUserRole === "celebrity" && postOwnerRole === "public") {
+        return next(
+            new AppError("Celebrity users cannot like/dislike public posts", 403)
+        );
     }
     const isLiked = post.likes.includes(userId);
     if (isLiked) {

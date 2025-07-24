@@ -122,6 +122,18 @@ const Signup = () => {
                   </label>
                 </div>
               </RadioGroup>
+              {formData.role === "public" && (
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  As a public user, you can follow celebrities, like posts, and
+                  explore content.
+                </p>
+              )}
+              {formData.role === "celebrity" && (
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                  As a celebrity, you can create posts, gain followers, and
+                  engage with the audience.
+                </p>
+              )}
             </div>
             <div className="mb-2">
               <label htmlFor="name" className="font-semibold mb-2 block">

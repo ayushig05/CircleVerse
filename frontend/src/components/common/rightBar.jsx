@@ -68,39 +68,42 @@ const RightBar = () => {
           See All
         </h1>
       </div>
-      {suggestedUser?.slice(0, 5).map((s_user) => {
-        return (
-          <div
-            onClick={() => navigate(`/profile/${s_user._id}`)}
-            key={s_user._id}
-            className="mt-6 cursor-pointer"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4 cursor-pointer">
-                <Avatar className="w-9 h-9">
-                  <AvatarImage src={s_user?.profilePicture} />
-                  <AvatarFallback>
-                    <UserRound size={20} />
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h1 className="font-bold text-gray-900 dark:text-white">
-                    {s_user.username}
-                    {s_user.role === "celebrity" && (
-                      <span className="text-blue-500 ml-1 inline-block align-middle">
-                        <BadgeCheck className="w-4 h-4" />
-                      </span>
-                    )}
-                  </h1>
-                  <p className="text-gray-700 dark:text-gray-400">
-                    {s_user.bio || "My Profile Bio Here"}
-                  </p>
+      {suggestedUser
+        ?.filter((s_user) => s_user.role === "celebrity")
+        .slice(0, 5)
+        .map((s_user) => {
+          return (
+            <div
+              onClick={() => navigate(`/profile/${s_user._id}`)}
+              key={s_user._id}
+              className="mt-6 cursor-pointer"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4 cursor-pointer">
+                  <Avatar className="w-9 h-9">
+                    <AvatarImage src={s_user?.profilePicture} />
+                    <AvatarFallback>
+                      <UserRound size={20} />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h1 className="font-bold text-gray-900 dark:text-white">
+                      {s_user.username}
+                      {s_user.role === "celebrity" && (
+                        <span className="text-blue-500 ml-1 inline-block align-middle">
+                          <BadgeCheck className="w-4 h-4" />
+                        </span>
+                      )}
+                    </h1>
+                    <p className="text-gray-700 dark:text-gray-400">
+                      {s_user.bio || "My Profile Bio Here"}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
     </div>
   );
 };

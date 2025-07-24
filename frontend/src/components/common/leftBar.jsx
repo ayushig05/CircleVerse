@@ -49,10 +49,14 @@ const LeftBar = () => {
       icon: <Heart />,
       label: "Notification",
     },
-    {
-      icon: <SquarePlus />,
-      label: "Create",
-    },
+    ...(user?.role === "celebrity"
+      ? [
+          {
+            icon: <SquarePlus />,
+            label: "Create",
+          },
+        ]
+      : []),
     {
       icon: <Settings />,
       label: "Settings",

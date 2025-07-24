@@ -1,4 +1,5 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import { Toaster } from "./components/ui/sonner";
 import Auth from "./pages/auth";
 import Signup from "./pages/auth/signup";
@@ -14,6 +15,19 @@ import ProtectedRoute from "./components/common/protectedRoutes";
 import SettingsPage from "./components/common/settings";
 
 function App() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const isAuthRoute = location.pathname.startsWith("/auth");
+    document.documentElement.classList.remove("dark", "light");
+    if (isAuthRoute) {
+      document.documentElement.classList.add("light");
+    } else {
+      const savedTheme = localStorage.getItem("theme") || "light";
+      document.documentElement.classList.add(savedTheme);
+    }
+  }, [location.pathname]);
+
   return (
     <div className="font-roboto">
       <Toaster />

@@ -97,7 +97,9 @@ const Profile = () => {
                   src={userProfile?.profilePicture}
                   className="w-full h-full rounded-full"
                 />
-                <AvatarFallback><UserRound size={70}/></AvatarFallback>
+                <AvatarFallback>
+                  <UserRound size={70} />
+                </AvatarFallback>
               </Avatar>
               <div>
                 <div className="lg:mt-5 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-4">
@@ -112,7 +114,7 @@ const Profile = () => {
                   <p className="block sm:hidden text-center font-medium mb-4">
                     {userProfile?.bio || "My Profile Bio Here"}
                   </p>
-                  {isOwnProfile && (
+                  {isOwnProfile && user?.role === "celebrity" && (
                     <Link
                       to={`/profile/edit-profile/${user?._id}`}
                       className="mt-2"
@@ -120,15 +122,19 @@ const Profile = () => {
                       <SquarePen className="w-5 h-5 cursor-pointer text-gray-700 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400" />
                     </Link>
                   )}
-                  {!isOwnProfile && (
-                    <Button
-                      className="cursor-pointer"
-                      variant={isFollowing ? "destructive" : "seccondary"}
-                      onClick={() => handleFollowUnfollow(id)}
-                    >
-                      {isFollowing ? "Unfollow" : "Follow"}
-                    </Button>
-                  )}
+                  {!isOwnProfile &&
+                    !(
+                      user?.role === "celebrity" &&
+                      userProfile?.role === "public"
+                    ) && (
+                      <Button
+                        className="cursor-pointer"
+                        variant={isFollowing ? "destructive" : "secondary"}
+                        onClick={() => handleFollowUnfollow(id)}
+                      >
+                        {isFollowing ? "Unfollow" : "Follow"}
+                      </Button>
+                    )}
                 </div>
                 <p className="mt-2 font-medium hidden sm:block">
                   {userProfile?.bio || "My Profile Bio Here"}
@@ -168,19 +174,24 @@ const Profile = () => {
                 <Grid />
                 <span className="font-semibold">Post</span>
               </div>
-              <div
-                className={cn(
-                  "flex items-center space-x-2 cursor-pointer",
-                  postOrSave === "SAVE" && "text-blue-500"
-                )}
-                onClick={() => setPostOrSave("SAVE")}
-              >
-                <Bookmark />
-                <span className="font-semibold">Saved</span>
-              </div>
+
+              {user?.role === "public" && (
+                <div
+                  className={cn(
+                    "flex items-center space-x-2 cursor-pointer",
+                    postOrSave === "SAVE" && "text-blue-500"
+                  )}
+                  onClick={() => setPostOrSave("SAVE")}
+                >
+                  <Bookmark />
+                  <span className="font-semibold">Saved</span>
+                </div>
+              )}
             </div>
             {postOrSave === "POST" && <Post userProfile={userProfile} />}
-            {postOrSave === "SAVE" && <Saved userProfile={userProfile} />}
+            {postOrSave === "SAVE" && user?.role === "public" && (
+              <Saved userProfile={userProfile} />
+            )}
           </div>
         </div>
       </div>

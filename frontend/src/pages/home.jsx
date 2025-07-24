@@ -25,11 +25,6 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const theme = localStorage.getItem("theme");
-    document.documentElement.classList.toggle("dark", theme === "dark");
-  }, []);
-
-  useEffect(() => {
     const getAuthUser = async () => {
       const getAuthUserReq = async () => {
         return await axios.get(`${API_URL}/users/me`, {
@@ -39,6 +34,9 @@ const Home = () => {
       const result = await handleAuthRequest(getAuthUserReq, setIsLoading);
       if (result) {
         dispatch(setAuthUser(result.data.data.user));
+        const theme = result.data.data.user.darkMode ? "dark" : "light";
+        document.documentElement.classList.toggle("dark", theme === "dark");
+        localStorage.setItem("theme", theme);
       }
     };
     getAuthUser();

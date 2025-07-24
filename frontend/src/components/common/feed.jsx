@@ -4,7 +4,13 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
 const API_URL = import.meta.env.VITE_BACKEND_API;
-import { BadgeCheck, Loader, MessageCircle, Send, UserRound } from "lucide-react";
+import {
+  BadgeCheck,
+  Loader,
+  MessageCircle,
+  Send,
+  UserRound,
+} from "lucide-react";
 import { HeartIcon as HeartOutline } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import { BookmarkIcon as BookmarkOutline } from "@heroicons/react/24/outline";
@@ -159,7 +165,12 @@ const Feed = () => {
           </div>
           <div className="mt-3 flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              {user?._id && post.likes.includes(user._id) ? (
+              {user?._id && user?.role === "celebrity" && post.user?.role === "public" ? (
+                <HeartOutline
+                  className="w-6 h-6 cursor-not-allowed text-gray-400"
+                  title="Celebrities cannot like public users' posts"
+                />
+              ) : user?._id && post.likes.includes(user._id) ? (
                 <HeartSolid
                   className="w-6 h-6 text-red-500 cursor-pointer"
                   onClick={() => handleLikeDislike(post._id)}
@@ -173,17 +184,18 @@ const Feed = () => {
               <MessageCircle className="cursor-pointer" />
               <Send className="cursor-pointer" />
             </div>
-            {user?.savedPosts?.includes(post._id) ? (
-              <BookmarkSolid
-                onClick={() => handleSaveUnsave(post._id)}
-                className="w-6 h-6 cursor-pointer"
-              />
-            ) : (
-              <BookmarkOutline
-                onClick={() => handleSaveUnsave(post._id)}
-                className="w-6 h-6 cursor-pointer"
-              />
-            )}
+            {user?.role === "public" &&
+              (user?.savedPosts?.includes(post._id) ? (
+                <BookmarkSolid
+                  onClick={() => handleSaveUnsave(post._id)}
+                  className="w-6 h-6 cursor-pointer"
+                />
+              ) : (
+                <BookmarkOutline
+                  onClick={() => handleSaveUnsave(post._id)}
+                  className="w-6 h-6 cursor-pointer"
+                />
+              ))}
           </div>
           <h1 className="mt-2 text-sm font-semibold">
             {post.likes.length} likes

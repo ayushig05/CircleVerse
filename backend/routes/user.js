@@ -16,9 +16,11 @@ const {
   suggestedUser,
   followUnfollow,
   getMe,
+  updateThemePreference,
 } = require("../controllers/user");
 const isAuthenticated = require("../middleware/isAuthenticated");
 const upload = require("../middleware/multer");
+const restrictTo = require("../middleware/restrictTo");
 
 const router = express.Router();
 
@@ -33,9 +35,10 @@ router.post("/change-password", isAuthenticated, changePassword);
 router.delete("/signout", isAuthenticated, signout);
 
 router.get("/profile/:id", isAuthenticated, getProfile);
-router.post("/edit-profile", isAuthenticated, upload.single("profilePicture"), editProfile);
+router.post("/edit-profile", isAuthenticated, restrictTo("celebrity"), upload.single("profilePicture"), editProfile);
 router.get("/suggested-user", isAuthenticated, suggestedUser);
 router.post("/follow-unfollow/:id", isAuthenticated, followUnfollow);
 router.get("/me", isAuthenticated, getMe);
+router.post("/update-theme", isAuthenticated, updateThemePreference);
 
 module.exports = router;

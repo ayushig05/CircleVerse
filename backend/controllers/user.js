@@ -77,9 +77,10 @@ exports.editProfile = catchAsync(async (req, res, next) => {
 
 exports.suggestedUser = catchAsync(async (req, res, next) => {
   const loginUserId = req.user.id;
-  const users = await User.find({ _id: { $ne: loginUserId } }).select(
-    "username bio profilePicture role"
-  );
+  const users = await User.find({
+    _id: { $ne: loginUserId },
+    role: "celebrity",
+  }).select("username bio profilePicture role");
   res.status(200).json({
     status: "success",
     data: {
@@ -94,9 +95,15 @@ exports.followUnfollow = catchAsync(async (req, res, next) => {
   if (loginUserId.toString() === targetUserId) {
     return next(new AppError("You cannot follow/unfollow yourself", 400));
   }
-  const targetUser = await User.findById(targetUserId);
+  const [loginUser, targetUser] = await Promise.all([
+    User.findById(loginUserId),
+    User.findById(targetUserId),
+  ]);
   if (!targetUser) {
-    return next(new AppError("User not found", 404));
+    return next(new AppError("Target user not found", 404));
+  }
+  if (loginUser.role === "celebrity" && targetUser.role === "public") {
+    return next(new AppError("Celebrities cannot follow Public users", 403));
   }
   const isFollowing = targetUser.followers.includes(loginUserId);
   if (isFollowing) {
@@ -142,6 +149,28 @@ exports.getMe = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     message: "Authenticated User",
+    data: {
+      user: {
+        ...user.toObject(),
+        darkMode: user.darkMode,
+      }
+    }
+  });
+});
+
+exports.updateThemePreference = catchAsync(async (req, res, next) => {
+  const userId = req.user._id;
+  const { darkMode } = req.body;
+
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { darkMode },
+    { new: true }
+  ).select("-password");
+
+  res.status(200).json({
+    status: "success",
+    message: "Theme updated",
     data: {
       user,
     },
