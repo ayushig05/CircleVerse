@@ -51,8 +51,11 @@ const RightBar = () => {
             </AvatarFallback>
           </Avatar>
           <div>
-            <h1 className="font-bold text-gray-900 dark:text-white">
+            <h1 className="font-bold text-gray-900 dark:text-white flex items-center gap-1">
               {user?.username}
+              {user?.role === "celebrity" && (
+                <BadgeCheck className="w-4 h-4 text-blue-500" />
+              )}
             </h1>
             <p className="text-gray-700 dark:text-gray-400">
               {user?.bio || "My Profile Bio Here"}

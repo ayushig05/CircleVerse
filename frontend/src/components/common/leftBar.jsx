@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
+  BadgeCheck,
   Heart,
   HomeIcon,
   MessageCircle,
@@ -112,8 +113,13 @@ const LeftBar = () => {
             </AvatarFallback>
           </Avatar>
           <div>
-            <h1 className="font-bold text-gray-900 dark:text-white">
+            <h1 className="font-bold text-gray-900 dark:text-white flex items-center gap-1">
               {user?.username}
+              {user?.role === "celebrity" && (
+                <span className="text-blue-500">
+                  <BadgeCheck className="w-4 h-4" />
+                </span>
+              )}
             </h1>
             <p className="text-gray-700 dark:text-gray-400">
               {user?.bio || "My Profile Bio Here"}
