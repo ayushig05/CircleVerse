@@ -1,18 +1,15 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 const API_URL = import.meta.env.VITE_BACKEND_API;
-import { Loader, UserRound } from "lucide-react";
+import { BadgeCheck, Loader, UserRound } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { handleAuthRequest } from "@/utils/api";
-import { setAuthUser } from "@/store/authSlice";
 
 const RightBar = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const [suggestedUser, setSuggestedUser] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,13 +37,6 @@ const RightBar = () => {
     );
   }
 
-  const handleLogout = async () => {
-    await axios.post(`${API_URL}/users/logout`, {}, { withCredentials: true });
-    dispatch(setAuthUser(null));
-    toast.success("Logout Successfully");
-    navigate("/auth/login");
-  };
-
   return (
     <div className="mt-10">
       <div className="flex items-center justify-between">
@@ -69,14 +59,8 @@ const RightBar = () => {
             </p>
           </div>
         </div>
-        <h1
-          onClick={handleLogout}
-          className="font-medium text-red-600 dark:text-red-400 cursor-pointer hover:underline"
-        >
-          Logout
-        </h1>
       </div>
-      <div className="flex items-center justify-between mt-8">
+      <div className="flex items-center justify-between mt-5">
         <h1 className="font-semibold text-gray-700 dark:text-gray-300">
           Suggested User
         </h1>
@@ -103,8 +87,8 @@ const RightBar = () => {
                   <h1 className="font-bold text-gray-900 dark:text-white">
                     {s_user.username}
                     {s_user.role === "celebrity" && (
-                      <span className="text-xs text-blue-600 ml-1">
-                        (celebrity)
+                      <span className="text-blue-500 ml-1 inline-block align-middle">
+                        <BadgeCheck className="w-4 h-4" />
                       </span>
                     )}
                   </h1>

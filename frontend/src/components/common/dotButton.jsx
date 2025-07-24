@@ -46,7 +46,7 @@ const DotButton = ({ post, user }) => {
     <div>
       <Dialog>
         <DialogTrigger>
-          <Ellipsis className="w-8 h-8" />
+          <Ellipsis className="w-8 h-8 cursor-pointer" />
         </DialogTrigger>
         <DialogContent>
           <DialogTitle></DialogTitle>

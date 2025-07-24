@@ -52,19 +52,18 @@ exports.getAllPost = catchAsync(async (req, res, next) => {
     const currentUser = await User.findById(loginUserId).select("following role");
     let visiblePosts;
     if (req.user.role === "celebrity") {
-        visiblePosts = await Post.find({
-            user: loginUserId,
-        })
+        visiblePosts = await Post.find({ user: loginUserId })
         .populate("user", "username profilePicture role")
         .sort({ createdAt: -1 });
     } else {
-        visiblePosts = await Post.find({ 
-            $or: [
-                { user: loginUserId },
-                { "user.role": "celebrity" },
-                { user: { $in: currentUser.following } },
-            ],
-        })
+        const celebrityUsers = await User.find({ role: "celebrity" }).select("_id");
+        const celebrityUserIds = celebrityUsers.map(user => user._id);
+        const allowedUserIds = [
+            loginUserId,
+            ...currentUser.following.map(id => id.toString()),
+            ...celebrityUserIds.map(id => id.toString()),
+        ];
+        visiblePosts = await Post.find({ user: { $in: allowedUserIds } })
         .populate("user", "username profilePicture role")
         .sort({ createdAt: -1 });
     }

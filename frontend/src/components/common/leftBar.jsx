@@ -1,21 +1,24 @@
 import React from "react";
 import { useState } from "react";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
   Heart,
   HomeIcon,
   MessageCircle,
   Search,
+  Settings,
   SquarePlus,
+  UserRound,
 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Image from "../../assets/logo.jpg";
 import CreatePost from "./createPost";
 
 const LeftBar = () => {
   const navigate = useNavigate();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const user = useSelector((state) => state.auth.user);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleSidebar = (label) => {
     if (label === "Home") {
@@ -23,6 +26,9 @@ const LeftBar = () => {
     }
     if (label === "Create") {
       setIsDialogOpen(true);
+    }
+    if (label === "Settings") {
+      navigate("/settings");
     }
   };
 
@@ -47,10 +53,14 @@ const LeftBar = () => {
       icon: <SquarePlus />,
       label: "Create",
     },
+    {
+      icon: <Settings />,
+      label: "Settings",
+    },
   ];
 
   return (
-    <div className="h-full mt-12">
+    <div className="h-full mt-12 relative">
       <CreatePost
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
@@ -84,6 +94,27 @@ const LeftBar = () => {
               </div>
             );
           })}
+        </div>
+      </div>
+      <div className="absolute bottom-0 left-0 w-full px-4 py-14">
+        <div
+          onClick={() => navigate(`/profile/${user?._id}`)}
+          className="flex items-center space-x-4 cursor-pointer rounded-md border-t-2 pt-3"
+        >
+          <Avatar className="w-9 h-9">
+            <AvatarImage src={user?.profilePicture} />
+            <AvatarFallback>
+              <UserRound size={20} />
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <h1 className="font-bold text-gray-900 dark:text-white">
+              {user?.username}
+            </h1>
+            <p className="text-gray-700 dark:text-gray-400">
+              {user?.bio || "My Profile Bio Here"}
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
 const API_URL = import.meta.env.VITE_BACKEND_API;
-import { Loader, MessageCircle, Send, UserRound } from "lucide-react";
+import { BadgeCheck, Loader, MessageCircle, Send, UserRound } from "lucide-react";
 import { HeartIcon as HeartOutline } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import { BookmarkIcon as BookmarkOutline } from "@heroicons/react/24/outline";
@@ -26,9 +26,9 @@ const Feed = () => {
   useEffect(() => {
     const getAllPost = async () => {
       const getAllPostReq = async () => {
-        return await axios.get(`${API_URL}/posts/all`, 
-          { withCredentials: true }
-        );
+        return await axios.get(`${API_URL}/posts/all`, {
+          withCredentials: true,
+        });
       };
       const result = await handleAuthRequest(getAllPostReq, setIsLoading);
       if (result) {
@@ -122,7 +122,14 @@ const Feed = () => {
                   <UserRound size={20} />
                 </AvatarFallback>
               </Avatar>
-              <h1>{post.user?.username}</h1>
+              <h1 className="flex items-center font-semibold">
+                {post.user?.username}
+                {post.user?.role === "celebrity" && (
+                  <span className="text-blue-500 ml-1">
+                    <BadgeCheck className="w-4 h-4" />
+                  </span>
+                )}
+              </h1>
             </div>
             <DotButton post={post} user={user} />
           </div>

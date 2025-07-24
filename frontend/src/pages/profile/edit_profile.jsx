@@ -3,6 +3,7 @@ import { useRef, useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import { toast } from "sonner";
 const API_URL = import.meta.env.VITE_BACKEND_API;
 import {
   Sheet,
@@ -19,35 +20,22 @@ import {
 import { MenuIcon, UserRound } from "lucide-react";
 import LeftBar from "@/components/common/leftBar";
 import LoadingButton from "@/components/common/loader";
-import Password from "@/components/common/password";
 import { handleAuthRequest } from "@/utils/api";
 import { setAuthUser } from "@/store/authSlice";
-import { toast } from "sonner";
 
 const EditProfile = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
-  const [bio, setBio] = useState(user?.bio || "");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [newPasswordConfirm, setNewPasswordConfirm] = useState("");
-  const [selectedImage, setSelectedImage] = useState(
-    user?.profilePicture || []
-  );
-  const [isBioLoading, setIsBioLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState("");
   const [isPhotoLoading, setIsPhotoLoading] = useState(false);
-  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+  const [bio, setBio] = useState("");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [isFormLoading, setIsFormLoading] = useState(false);
 
   const fileInputRef = useRef([]);
-
-  useEffect(() => {
-    if (!user) {
-      toast.success("Please login to access this page.");
-      navigate("/auth/login");
-    }
-  }, [user, navigate]);
 
   useEffect(() => {
     if (!user) {
@@ -56,6 +44,8 @@ const EditProfile = () => {
     } else if (id && user._id !== id) {
       toast.success("Unauthorized access.");
       navigate("/");
+    } else {
+      setSelectedImage(user?.profilePicture || "");
     }
   }, [user, id, navigate]);
 
@@ -83,22 +73,6 @@ const EditProfile = () => {
     }
   };
 
-  const handleUpdateBio = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append("bio", bio);
-    const updateBioReq = async () => {
-      return await axios.post(`${API_URL}/users/edit-profile`, formData, {
-        withCredentials: true,
-      });
-    };
-    const result = await handleAuthRequest(updateBioReq, setIsBioLoading);
-    if (result) {
-      dispatch(setAuthUser(result.data.data.user));
-      toast.success(result.data.message);
-    }
-  };
-
   const handleUpdatePhoto = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -117,45 +91,34 @@ const EditProfile = () => {
     }
   };
 
-  const isStrongPassword = (password) =>
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])(?!.*\s).{8,}$/.test(
-      password
-    );
-
-  const handlePasswordChange = async (e) => {
+  const handleUpdateProfile = async (e) => {
     e.preventDefault();
-    if (!currentPassword || !newPassword || !newPasswordConfirm) {
-      return toast.success("Please fill in all password fields.");
+    const formData = new FormData();
+    if (username.trim()) {
+      formData.append("username", username);
+    } 
+    if (bio.trim()) {
+      formData.append("bio", bio);
     }
-    if (newPassword !== newPasswordConfirm) {
-      return toast.success("New passwords do not match.");
+    if (email.trim()) {
+      formData.append("email", email);
     }
-    if (!isStrongPassword(newPassword)) {
-      return toast.error(
-        "Password must be at least 8 characters, include an uppercase letter, a lowercase letter, a special character, and a number."
-      );
+    if (!username.trim() && !bio.trim() && !email.trim()) {
+      return toast.error("No changes to update.");
     }
-    const data = {
-      currentPassword,
-      newPassword,
-      newPasswordConfirm,
-    };
-    const updatePasswordReq = async () => {
-      return await axios.post(`${API_URL}/users/change-password`, data, {
+    const updateProfileReq = async () => {
+      return await axios.post(`${API_URL}/users/edit-profile`, formData, {
         withCredentials: true,
       });
     };
-    const result = await handleAuthRequest(
-      updatePasswordReq,
-      setIsPasswordLoading
-    );
+    const result = await handleAuthRequest(updateProfileReq, setIsFormLoading);
     if (result) {
       dispatch(setAuthUser(result.data.data.user));
       toast.success(result.data.message);
     }
-    setCurrentPassword("");
-    setNewPassword("");
-    setNewPasswordConfirm("");
+    setUsername("");
+    setBio("");
+    setEmail("");
   };
 
   return (
@@ -211,68 +174,55 @@ const EditProfile = () => {
             </div>
           </div>
         </form>
-        <form onSubmit={handleUpdateBio} className="border-b-2 py-5">
-          <div className="flex flex-col sm:flex-row items- justify-center gap-4 sm:gap-10">
-            <label htmlFor="bio" className="block text-lg font-bold">
-              Bio
-            </label>
-            <textarea
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              className="w-[90%] sm:w-[60%] md:w-[50%] h-14 bg-muted dark:bg-muted text-foreground dark:text-foreground outline-none p-4 rounded-md"
-            ></textarea>
-            <div className="flex justify-center sm:justify-end">
+        <form onSubmit={handleUpdateProfile} className="py-5">
+          <div className="flex flex-col gap-4 px-4">
+            <div className="flex items-center gap-6">
+              <label htmlFor="username" className="w-24 text-lg font-bold">
+                Username
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Enter new username"
+                className="w-[90%] sm:w-[60%] md:w-[50%] h-10 bg-muted dark:bg-muted text-foreground dark:text-foreground outline-none px-4 rounded-md"
+              />
+            </div>
+            <div className="flex items-start gap-6">
+              <label htmlFor="bio" className="w-24 text-lg font-bold pt-2">
+                Bio
+              </label>
+              <input
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="Enter your bio"
+                className="w-[90%] sm:w-[60%] md:w-[50%] h-10 bg-muted dark:bg-muted text-foreground dark:text-foreground outline-none px-4 rounded-md resize-none"
+              />
+            </div>
+            <div className="flex items-center gap-6">
+              <label htmlFor="email" className="w-24 text-lg font-bold">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter new email"
+                className="w-[90%] sm:w-[60%] md:w-[50%] h-10 bg-muted dark:bg-muted text-foreground dark:text-foreground outline-none px-4 rounded-md"
+              />
+            </div>
+            <div className="ml-32 mt-4">
               <LoadingButton
-                isLoading={isBioLoading}
+                isLoading={isFormLoading}
                 size={"lg"}
                 className="cursor-pointer"
                 type="submit"
               >
-                Change Bio
+                Update Profile
               </LoadingButton>
             </div>
           </div>
         </form>
-        <div className="flex flex-col justify-center sm:block">
-          <h1 className="text-2xl font-bold text-foreground dark:text-foreground mt-6 text-center sm:text-left">
-            Change Password
-          </h1>
-          <form className="mt-8 mb-8 ml-2" onSubmit={handlePasswordChange}>
-            <div className="w-[90%] sm:w-[45%] md:w-[40%] lg:w-[30%] mx-auto sm:mx-0">
-              <Password
-                name="currentPassword"
-                value={currentPassword}
-                label="Current Password"
-                onChange={(e) => setCurrentPassword(e.target.value)}
-              />
-            </div>
-            <div className="w-[90%] sm:w-[45%] md:w-[40%] lg:w-[30%] mx-auto sm:mx-0 mt-4 mb-4">
-              <Password
-                name="newPassword"
-                value={newPassword}
-                label="New Password"
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
-            </div>
-            <div className="w-[90%] sm:w-[45%] md:w-[40%] lg:w-[30%] mx-auto sm:mx-0">
-              <Password
-                name="newPasswordConfirm"
-                value={newPasswordConfirm}
-                label="New Password Confirm"
-                onChange={(e) => setNewPasswordConfirm(e.target.value)}
-              />
-            </div>
-            <div className="mt-6 flex justify-center sm:justify-start">
-              <LoadingButton
-                isLoading={isPasswordLoading}
-                type="submit"
-                className="bg-red-700 cursor-pointer"
-              >
-                Change Password
-              </LoadingButton>
-            </div>
-          </form>
-        </div>
       </div>
     </div>
   );

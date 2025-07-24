@@ -1,6 +1,6 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import { Moon, Sun } from "lucide-react";
+import { ToggleLeft, ToggleRight } from "lucide-react";
 
 const DarkModeToggle = () => {
   const [isDark, setIsDark] = useState(
@@ -19,12 +19,17 @@ const DarkModeToggle = () => {
   }, [isDark]);
 
   return (
-    <button
+    <div
       onClick={() => setIsDark(!isDark)}
-      className="w-10 h-10 flex items-center justify-center text-foreground dark:text-foreground rounded cursor-pointer"
+      className="flex items-center justify-between cursor-pointer p-4 rounded-md transition w-full"
     >
-      {isDark ? <Moon size={20} /> : <Sun size={20} />}
-    </button>
+      <span className="text-lg font-medium">Enable Dark Mode</span>
+      {isDark ? (
+        <ToggleRight className="text-blue-600" />
+      ) : (
+        <ToggleLeft className="text-gray-600" />
+      )}
+    </div>
   );
 };
 

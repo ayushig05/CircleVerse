@@ -2,7 +2,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
-import { redirect, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Loader, MenuIcon } from "lucide-react";
 const API_URL = import.meta.env.VITE_BACKEND_API;
 import {
@@ -17,7 +17,6 @@ import { setAuthUser } from "@/store/authSlice";
 import LeftBar from "../components/common/leftBar";
 import Feed from "../components/common/feed";
 import RightBar from "../components/common/rightBar";
-import DarkModeToggle from "@/components/common/darkModeToggle";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -77,13 +76,11 @@ const Home = () => {
             </SheetContent>
           </Sheet>
         </div>
+        {/* <div className="border-2 -mb-12">Stories</div> */}
         <Feed />
       </div>
       <div className="w-[23%] px-6 lg:block hidden h-screen">
         <div className="flex flex-col">
-          <div className="flex justify-end">
-            <DarkModeToggle />
-          </div>
           <div className="-mt-5">
             <RightBar />
           </div>

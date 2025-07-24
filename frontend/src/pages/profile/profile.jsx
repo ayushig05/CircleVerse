@@ -3,7 +3,15 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Bookmark, Grid, Loader, MenuIcon, UserRound } from "lucide-react";
+import {
+  Bookmark,
+  Grid,
+  Loader,
+  MenuIcon,
+  UserRound,
+  BadgeCheck,
+  SquarePen,
+} from "lucide-react";
 const API_URL = import.meta.env.VITE_BACKEND_API;
 import {
   Sheet,
@@ -24,7 +32,6 @@ import { useFollowUnfollow } from "@/hooks/useAuth";
 import LeftBar from "@/components/common/leftBar";
 import Post from "@/components/common/post";
 import Saved from "@/components/common/saved";
-import DeleteProfile from "@/components/common/deleteProfile";
 
 const Profile = () => {
   const { id } = useParams();
@@ -34,7 +41,6 @@ const Profile = () => {
   const [postOrSave, setPostOrSave] = useState("POST");
   const [isLoading, setIsLoading] = useState(false);
   const [userProfile, setUserProfile] = useState();
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const isOwnProfile = user?._id === id;
   const isFollowing = user?.following.includes(id);
@@ -95,11 +101,11 @@ const Profile = () => {
               </Avatar>
               <div>
                 <div className="lg:mt-5 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-2 sm:gap-4">
-                  <h1 className="text-2xl font-bold">
+                  <h1 className="text-2xl font-bold flex items-center">
                     {userProfile?.username}
-                    {userProfile?.role && (
-                      <span className="text-xs ml-2 px-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white uppercase">
-                        {userProfile.role}
+                    {userProfile?.role === "celebrity" && (
+                      <span className="ml-2 text-blue-500">
+                        <BadgeCheck className="w-5 h-5" />
                       </span>
                     )}
                   </h1>
@@ -107,36 +113,22 @@ const Profile = () => {
                     {userProfile?.bio || "My Profile Bio Here"}
                   </p>
                   {isOwnProfile && (
-                    <Link to={`/profile/edit-profile/${user?._id}`}>
-                      <Button variant={"secondary"} className="cursor-pointer">
-                        Edit Profile
-                      </Button>
+                    <Link
+                      to={`/profile/edit-profile/${user?._id}`}
+                      className="mt-2"
+                    >
+                      <SquarePen className="w-5 h-5 cursor-pointer text-gray-700 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400" />
                     </Link>
                   )}
-                  {isOwnProfile && (
-                    <div>
-                      <Button
-                        variant={"secondary"}
-                        className="cursor-pointer"
-                        onClick={() => setIsDeleteOpen(true)}
-                      >
-                        Delete Account
-                      </Button>
-                      <DeleteProfile
-                        isOpen={isDeleteOpen}
-                        onClose={() => setIsDeleteOpen(false)}
-                      />
-                    </div>
+                  {!isOwnProfile && (
+                    <Button
+                      className="cursor-pointer"
+                      variant={isFollowing ? "destructive" : "seccondary"}
+                      onClick={() => handleFollowUnfollow(id)}
+                    >
+                      {isFollowing ? "Unfollow" : "Follow"}
+                    </Button>
                   )}
-                  {!isOwnProfile && user?.role === "public" && userProfile?.role === "celebrity" && (
-                      <Button
-                        className="cursor-pointer"
-                        variant={isFollowing ? "destructive" : "secondary"}
-                        onClick={() => handleFollowUnfollow(id)}
-                      >
-                        {isFollowing ? "Unfollow" : "Follow"}
-                      </Button>
-                    )}
                 </div>
                 <p className="mt-2 font-medium hidden sm:block">
                   {userProfile?.bio || "My Profile Bio Here"}
@@ -176,23 +168,19 @@ const Profile = () => {
                 <Grid />
                 <span className="font-semibold">Post</span>
               </div>
-              {userProfile?.role === "public" && (
-                <div
-                  className={cn(
-                    "flex items-center space-x-2 cursor-pointer",
-                    postOrSave === "SAVE" && "text-blue-500"
-                  )}
-                  onClick={() => setPostOrSave("SAVE")}
-                >
-                  <Bookmark />
-                  <span className="font-semibold">Saved</span>
-                </div>
-              )}
+              <div
+                className={cn(
+                  "flex items-center space-x-2 cursor-pointer",
+                  postOrSave === "SAVE" && "text-blue-500"
+                )}
+                onClick={() => setPostOrSave("SAVE")}
+              >
+                <Bookmark />
+                <span className="font-semibold">Saved</span>
+              </div>
             </div>
             {postOrSave === "POST" && <Post userProfile={userProfile} />}
-            {postOrSave === "SAVE" && userProfile?.role === "public" && (
-              <Saved userProfile={userProfile} />
-            )}
+            {postOrSave === "SAVE" && <Saved userProfile={userProfile} />}
           </div>
         </div>
       </div>

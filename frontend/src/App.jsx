@@ -11,6 +11,7 @@ import UserProfile from "./pages/userProfile";
 import Profile from "./pages/profile/profile";
 import EditProfile from "./pages/profile/edit_profile";
 import ProtectedRoute from "./components/common/protectedRoutes";
+import SettingsPage from "./components/common/settings";
 
 function App() {
   return (
@@ -45,6 +46,12 @@ function App() {
               }
             />
           </Route>
+          <Route path="/settings" element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
     </div>

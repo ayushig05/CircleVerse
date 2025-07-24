@@ -122,10 +122,6 @@ const Signup = () => {
                   </label>
                 </div>
               </RadioGroup>
-              <small className="text-gray-500 dark:text-gray-400 mt-1 block">
-                Celebrities can post content. Public users can follow
-                celebrities.
-              </small>
             </div>
             <div className="mb-2">
               <label htmlFor="name" className="font-semibold mb-2 block">
