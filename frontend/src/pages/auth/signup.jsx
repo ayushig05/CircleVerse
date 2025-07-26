@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 const API_URL = import.meta.env.VITE_BACKEND_API;
 import { handleAuthRequest } from "@/utils/api";
-import Image from "../../assets/logo.jpg";
+import Image from "../../assets/logo1.jpg";
 import Password from "@/components/common/password";
 import LoadingButton from "@/components/common/loader";
 import { setAuthUser } from "@/store/authSlice";
@@ -77,13 +77,11 @@ const Signup = () => {
   return (
     <div className="w-full h-screen overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-7 gap-8">
-        <div className="lg:col-span-4 h-screen hidden lg:block">
+        <div className="lg:col-span-4 hidden lg:block h-screen w-full">
           <img
             src={Image}
             alt="signup"
-            width={1000}
-            height={1000}
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover"
           />
         </div>
         <div className="lg:col-span-3 flex flex-col items-center justify-center h-screen">

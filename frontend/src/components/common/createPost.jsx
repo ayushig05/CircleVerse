@@ -76,12 +76,14 @@ const CreatePost = ({ isOpen, onClose }) => {
     if (result) {
       dispatch(addPosts(result.data.data.post));
       toast.success("Post Created Successfully");
-      setPreviewURL(null);
-      setCaption("");
-      setSelectedFile(null);
-      onClose();
-      navigate("/");
-      window.location.reload();
+      setTimeout(() => {
+        setPreviewURL(null);
+        setCaption("");
+        setSelectedFile(null);
+        onClose();
+        navigate("/");
+        window.location.reload();
+      }, 1000);
     }
   };
 

@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import {
   Dialog,
@@ -16,10 +17,13 @@ import { useFollowUnfollow } from "@/hooks/useAuth";
 import { Button } from "../ui/button";
 import { handleAuthRequest } from "@/utils/api";
 import { deletePosts } from "@/store/postSlice";
+import LoadingButton from "./loader";
 
 const DotButton = ({ post, user }) => {
   const dispatch = useDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+
   const { handleFollowUnfollow } = useFollowUnfollow();
   const isOwnPost = post?.user?._id === user?._id;
   const isFollowing = post?.user?._id
@@ -32,7 +36,7 @@ const DotButton = ({ post, user }) => {
         withCredentials: true,
       });
     };
-    const result = await handleAuthRequest(deletePostReq);
+    const result = await handleAuthRequest(deletePostReq, setIsLoading);
     if (result?.data.status === "success") {
       if (post?._id) {
         dispatch(deletePosts(post._id));
@@ -70,15 +74,20 @@ const DotButton = ({ post, user }) => {
               </Button>
             </Link>
             {isOwnPost && (
-              <Button
+              <LoadingButton
                 variant={"destructive"}
                 onClick={handleDeletePost}
+                isLoading={isLoading}
                 className="cursor-pointer"
               >
                 Delete Post
-              </Button>
+              </LoadingButton>
             )}
-            <DialogClose className="cursor-pointer">Cancel</DialogClose>
+            <DialogClose>
+              <Button className="bg-gray-500 text-white hover:bg-gray-600 cursor-pointer">
+                Cancel
+              </Button>
+            </DialogClose>
           </div>
         </DialogContent>
       </Dialog>

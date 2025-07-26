@@ -60,9 +60,11 @@ exports.getAllPost = catchAsync(async (req, res, next) => {
     let totalPosts;
     let hasMore;
     if (req.user.role === "celebrity") {
-        totalPosts = await Post.countDocuments({ user: loginUserId });
+        const celebrityUsers = await User.find({ role: "celebrity" }).select("_id");
+        const celebrityUserIds = celebrityUsers.map(user => user._id);
+        totalPosts = await Post.countDocuments({ user: celebrityUserIds });
         hasMore = skip + limit < totalPosts;
-        visiblePosts = await Post.find({ user: loginUserId })
+        visiblePosts = await Post.find({ user: celebrityUserIds })
             .populate("user", "username profilePicture role")
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -75,7 +77,7 @@ exports.getAllPost = catchAsync(async (req, res, next) => {
             ...currentUser.following.map(id => id.toString()),
             ...celebrityUserIds.map(id => id.toString()),
         ];
-        totalPosts = await Post.countDocuments({ user: loginUserId });
+        totalPosts = await Post.countDocuments({ user: allowedUserIds });
         hasMore = skip + limit < totalPosts;
         visiblePosts = await Post.find({ user: { $in: allowedUserIds } })
             .populate("user", "username profilePicture role")

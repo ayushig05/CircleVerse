@@ -1,5 +1,5 @@
-import React, { useCallback } from "react";
-import { useState, useEffect, useRef } from "react";
+import React from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
@@ -37,6 +37,7 @@ const Feed = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const observer = useRef();
 
   const lastPostRef = useCallback(
@@ -49,7 +50,7 @@ const Feed = () => {
       }
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasMore) {
-          setPage((prevPage) => prevPage + 1);
+          setPage((prev) => prev + 1);
         }
       });
       if (node) {
@@ -61,12 +62,17 @@ const Feed = () => {
 
   useEffect(() => {
     const getAllPost = async () => {
+      if (page === 1) {
+        setIsLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
       const getAllPostReq = async () => {
-        return await axios.get(`${API_URL}/posts/all?page=${page}&limit=5`, {
+        return await axios.get(`${API_URL}/posts/all?page=${page}&limit=4`, {
           withCredentials: true,
         });
       };
-      const result = await handleAuthRequest(getAllPostReq, setIsLoading);
+      const result = await handleAuthRequest(getAllPostReq);
       if (result) {
         const newPosts = result.data.data.visiblePosts;
         setHasMore(result.data.data.hasMore);
@@ -76,9 +82,14 @@ const Feed = () => {
           dispatch(addPosts(newPosts));
         }
       }
+      if (page === 1) {
+        setIsLoading(false);
+      } else {
+        setLoadingMore(false);
+      }
     };
     getAllPost();
-  }, [page, dispatch, hasMore]);
+  }, [page, dispatch]);
 
   useEffect(() => {
     const handleNewPost = (newPost) => {
@@ -142,14 +153,6 @@ const Feed = () => {
       setComment((prev) => ({ ...prev, [postId]: "" }));
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="w-full h-screen flex flex-col items-center justify-center">
-        <Loader className="animate-spin" />
-      </div>
-    );
-  }
 
   if (!Array.isArray(posts) || posts.length === 0) {
     return (
@@ -277,6 +280,11 @@ const Feed = () => {
               Post
             </p>
           </div>
+          {index === posts.length - 1 && loadingMore && (
+            <div className="w-full flex justify-center mt-4">
+              <Loader className="animate-spin" />
+            </div>
+          )}
           <div className="pb-6 border-b-2"></div>
         </div>
       ))}

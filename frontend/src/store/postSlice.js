@@ -20,8 +20,8 @@ const postSlice = createSlice({
         state.posts.unshift(newPost);
       }
     },
-    addPost: (state, action) => {
-      const newPosts = action.payload;
+    addPosts: (state, action) => {
+      const newPosts = Array.isArray(action.payload) ? action.payload : [action.payload];
       newPosts.forEach((newPost) => {
         const exists = state.posts.some(
           (post) => post._id === newPost._id);
