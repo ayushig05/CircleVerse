@@ -11,11 +11,29 @@ const postSlice = createSlice({
     setPost: (state, action) => {
       state.posts = action.payload;
     },
-    addPosts: (state, action) => {
-      state.posts.unshift(action.payload);
+    addNewPost: (state, action) => {
+      const newPost = action.payload;
+      const alreadyExists = state.posts.some(
+        (post) => post._id === newPost._id
+      );
+      if (!alreadyExists) {
+        state.posts.unshift(newPost);
+      }
+    },
+    addPost: (state, action) => {
+      const newPosts = action.payload;
+      newPosts.forEach((newPost) => {
+        const exists = state.posts.some(
+          (post) => post._id === newPost._id);
+          if (!exists) {
+            state.posts.push(newPost);
+          }
+      });
     },
     deletePosts: (state, action) => {
-      state.posts = state.posts.filter((post) => post._id !== action.payload);
+      state.posts = state.posts.filter(
+        (post) => post._id !== action.payload
+      );
     },
     likeOrDislike: (state, action) => {
       const post = state.posts.find(
@@ -41,7 +59,7 @@ const postSlice = createSlice({
   },
 });
 
-export const { setPost, addPosts, deletePosts, likeOrDislike, addComment } =
+export const { setPost, addNewPost, addPosts, deletePosts, likeOrDislike, addComment } =
   postSlice.actions;
 
 export default postSlice.reducer;

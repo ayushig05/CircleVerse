@@ -1,8 +1,9 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
+import socket from "@/socket";
 const API_URL = import.meta.env.VITE_BACKEND_API;
 import {
   BadgeCheck,
@@ -16,7 +17,13 @@ import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import { BookmarkIcon as BookmarkOutline } from "@heroicons/react/24/outline";
 import { BookmarkIcon as BookmarkSolid } from "@heroicons/react/24/solid";
 import { handleAuthRequest } from "@/utils/api";
-import { addComment, likeOrDislike, setPost } from "@/store/postSlice";
+import {
+  addPosts,
+  addNewPost,
+  addComment,
+  likeOrDislike,
+  setPost,
+} from "@/store/postSlice";
 import { setAuthUser } from "@/store/authSlice";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Comment from "./comment";
@@ -26,22 +33,61 @@ const Feed = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const posts = useSelector((state) => state.posts.posts) || [];
-  const [comment, setComment] = useState("");
+  const [comment, setComment] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const observer = useRef();
+
+  const lastPostRef = useCallback(
+    (node) => {
+      if (isLoading) {
+        return;
+      }
+      if (observer.current) {
+        observer.current.disconnect();
+      }
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          setPage((prevPage) => prevPage + 1);
+        }
+      });
+      if (node) {
+        observer.current.observe(node);
+      }
+    },
+    [isLoading, hasMore]
+  );
 
   useEffect(() => {
     const getAllPost = async () => {
       const getAllPostReq = async () => {
-        return await axios.get(`${API_URL}/posts/all`, {
+        return await axios.get(`${API_URL}/posts/all?page=${page}&limit=5`, {
           withCredentials: true,
         });
       };
       const result = await handleAuthRequest(getAllPostReq, setIsLoading);
       if (result) {
-        dispatch(setPost(result.data.data.visiblePosts));
+        const newPosts = result.data.data.visiblePosts;
+        setHasMore(result.data.data.hasMore);
+        if (page === 1) {
+          dispatch(setPost(newPosts));
+        } else {
+          dispatch(addPosts(newPosts));
+        }
       }
     };
     getAllPost();
+  }, [page, dispatch, hasMore]);
+
+  useEffect(() => {
+    const handleNewPost = (newPost) => {
+      dispatch(addNewPost(newPost));
+    };
+    socket.on("new-post", handleNewPost);
+    return () => {
+      socket.off("new-post", handleNewPost);
+    };
   }, [dispatch]);
 
   const handleLikeDislike = async (id) => {
@@ -115,8 +161,12 @@ const Feed = () => {
 
   return (
     <div className="mt-20 w-[70%] mx-auto">
-      {posts.map((post) => (
-        <div key={post._id} className="mt-8">
+      {posts.map((post, index) => (
+        <div
+          key={post._id}
+          ref={index === posts.length - 1 ? lastPostRef : null}
+          className="mt-8"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Avatar className="w-9 h-9">
@@ -165,7 +215,9 @@ const Feed = () => {
           </div>
           <div className="mt-3 flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              {user?._id && user?.role === "celebrity" && post.user?.role === "public" ? (
+              {user?._id &&
+              user?.role === "celebrity" &&
+              post.user?.role === "public" ? (
                 <HeartOutline
                   className="w-6 h-6 cursor-not-allowed text-gray-400"
                   title="Celebrities cannot like public users' posts"

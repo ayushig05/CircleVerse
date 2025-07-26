@@ -38,6 +38,9 @@ exports.createPost = catchAsync(async(req, res, next) => {
         path: "user",
         select: "username email bio profilePicture",
     });
+    if (global.io) {
+        global.io.emit("new-post", post);
+    }
     return res.status(201).json({
         status: "success",
         message: "Post Created",
@@ -49,12 +52,21 @@ exports.createPost = catchAsync(async(req, res, next) => {
 
 exports.getAllPost = catchAsync(async (req, res, next) => {
     const loginUserId = req.user.id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
     const currentUser = await User.findById(loginUserId).select("following role");
     let visiblePosts;
+    let totalPosts;
+    let hasMore;
     if (req.user.role === "celebrity") {
+        totalPosts = await Post.countDocuments({ user: loginUserId });
+        hasMore = skip + limit < totalPosts;
         visiblePosts = await Post.find({ user: loginUserId })
-        .populate("user", "username profilePicture role")
-        .sort({ createdAt: -1 });
+            .populate("user", "username profilePicture role")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
     } else {
         const celebrityUsers = await User.find({ role: "celebrity" }).select("_id");
         const celebrityUserIds = celebrityUsers.map(user => user._id);
@@ -63,14 +75,21 @@ exports.getAllPost = catchAsync(async (req, res, next) => {
             ...currentUser.following.map(id => id.toString()),
             ...celebrityUserIds.map(id => id.toString()),
         ];
+        totalPosts = await Post.countDocuments({ user: loginUserId });
+        hasMore = skip + limit < totalPosts;
         visiblePosts = await Post.find({ user: { $in: allowedUserIds } })
-        .populate("user", "username profilePicture role")
-        .sort({ createdAt: -1 });
+            .populate("user", "username profilePicture role")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
     }
     res.status(200).json({ 
         status: "success",
         data: {
             visiblePosts,
+            currentPage: page,
+            limit,
+            hasMore,
         },
     });
 });
@@ -249,6 +268,9 @@ exports.createVideoPost = catchAsync(async (req, res, next) => {
         path: "user",
         select: "username email bio profilePicture",
     });
+    if (global.io) {
+        global.io.emit("new-post", post);
+    }
     return res.status(201).json({
         status: "success",
         message: "Video Post Created",

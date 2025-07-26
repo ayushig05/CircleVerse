@@ -1,3 +1,6 @@
+const http = require("http");
+const { Server } = require("socket.io");
+
 const dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 require("./db/conn");
@@ -11,8 +14,28 @@ process.on("uncaughtException", (err) => {
 const app = require("./app");
 const port = process.env.PORT || 3000;
 
-const server = app.listen(port, () => {
-    console.log(`App Running on port ${port}`);
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: ({
+        origin: [
+            "http://localhost:5173", 
+            "https://circle-verse.vercel.app"
+        ],
+        credentials: true,
+      }),
+});
+
+global.io = io;
+
+io.on("connection", (socket) => {
+    console.log("New client connected", socket.id);
+    socket.on("disconnect", () => {
+        console.log("Client disconnected", socket.id);
+    });
+});
+
+server.listen(port, () => {
+    console.log(`Server and Socket.IO running on port ${port}`);
 });
 
 process.on("unhandledRejection", (err) => {
