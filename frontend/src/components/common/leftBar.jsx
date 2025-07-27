@@ -13,13 +13,14 @@ import {
   UserRound,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import Image from "../../assets/logo.jpg";
 import CreatePost from "./createPost";
+import SearchDialog from "./searchDialog";
 
 const LeftBar = () => {
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchDialogOpen, setSearchDialogOpen] = useState(false);
 
   const handleSidebar = (label) => {
     if (label === "Home") {
@@ -30,6 +31,9 @@ const LeftBar = () => {
     }
     if (label === "Settings") {
       navigate("/settings");
+    }
+    if (label === "Search") {
+      setSearchDialogOpen(true);
     }
   };
 
@@ -69,6 +73,10 @@ const LeftBar = () => {
       <CreatePost
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
+      />
+      <SearchDialog 
+        isOpen={searchDialogOpen}
+        onClose={() => setSearchDialogOpen(false)}
       />
       <div className="flex justify-center py-3 px-4 mt-5">
         <h1 className="text-xl lg:text-2xl font-bold tracking-wide font-[Poppins] text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-pink-500 to-indigo-500">

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
 import socket from "@/socket";
+import { useSearchParams } from "react-router-dom";
 const API_URL = import.meta.env.VITE_BACKEND_API;
 import {
   BadgeCheck,
@@ -28,6 +29,7 @@ import { setAuthUser } from "@/store/authSlice";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Comment from "./comment";
 import DotButton from "./dotButton";
+import SearchUsers from "./searchUsers";
 
 const Feed = () => {
   const dispatch = useDispatch();
@@ -39,6 +41,9 @@ const Feed = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const observer = useRef();
+  const [searchParams] = useSearchParams();
+  const search = searchParams.get("search");
+  const type = searchParams.get("type");
 
   const lastPostRef = useCallback(
     (node) => {
@@ -67,15 +72,23 @@ const Feed = () => {
       } else {
         setLoadingMore(true);
       }
+      let fetchUrl = "";
+      if (search && type === "posts") {
+        fetchUrl = `${API_URL}/posts/search-post?keyword=${encodeURIComponent(search)}`;
+      } else if (search && type === "users") {
+        fetchUrl = `${API_URL}/users/search-user?keyword=${encodeURIComponent(search)}`;
+      } else {
+        fetchUrl = `${API_URL}/posts/all?page=${page}&limit=4`;
+      }
       const getAllPostReq = async () => {
-        return await axios.get(`${API_URL}/posts/all?page=${page}&limit=4`, {
+        return await axios.get(fetchUrl, {
           withCredentials: true,
         });
       };
       const result = await handleAuthRequest(getAllPostReq);
       if (result) {
-        const newPosts = result.data.data.visiblePosts;
-        setHasMore(result.data.data.hasMore);
+        const newPosts = type === "posts" ? result.data.data.posts : result.data.data.visiblePosts;
+        setHasMore(type === "posts" ? false : result.data.data.hasMore);
         if (page === 1) {
           dispatch(setPost(newPosts));
         } else {
@@ -89,7 +102,7 @@ const Feed = () => {
       }
     };
     getAllPost();
-  }, [page, dispatch]);
+  }, [page, dispatch, search, type]);
 
   useEffect(() => {
     const handleNewPost = (newPost) => {
@@ -153,7 +166,9 @@ const Feed = () => {
       setComment((prev) => ({ ...prev, [postId]: "" }));
     }
   };
-
+  if (type === "users") {
+    return <SearchUsers />;
+  }
   if (!Array.isArray(posts) || posts.length === 0) {
     return (
       <div className="text-3xl m-8 text-center capitalize font-bold">
@@ -167,7 +182,7 @@ const Feed = () => {
       {posts.map((post, index) => (
         <div
           key={post._id}
-          ref={index === posts.length - 1 ? lastPostRef : null}
+          ref={index === posts.length - 1 && !search ? lastPostRef : null}
           className="mt-8"
         >
           <div className="flex items-center justify-between">
@@ -280,7 +295,7 @@ const Feed = () => {
               Post
             </p>
           </div>
-          {index === posts.length - 1 && loadingMore && (
+          {index === posts.length - 1 && loadingMore && !search && (
             <div className="w-full flex justify-center mt-4">
               <Loader className="animate-spin" />
             </div>

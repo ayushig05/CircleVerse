@@ -25,7 +25,6 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "../../components/ui/avatar";
-import { cn } from "@/lib/utils";
 import { handleAuthRequest } from "@/utils/api";
 import { Button } from "@/components/ui/button";
 import { useFollowUnfollow } from "@/hooks/useAuth";
@@ -38,7 +37,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { handleFollowUnfollow } = useFollowUnfollow();
   const user = useSelector((state) => state.auth.user);
-  const [postOrSave, setPostOrSave] = useState("POST");
+  const [postOrSave, setPostOrSave] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [userProfile, setUserProfile] = useState();
 
@@ -58,6 +57,12 @@ const Profile = () => {
       const result = await handleAuthRequest(getUserReq, setIsLoading);
       if (result) {
         setUserProfile(result?.data.data.user);
+        const profileUser = result?.data.data.user;
+        if (profileUser.role === "public") {
+          setPostOrSave("SAVE");
+        } else {
+          setPostOrSave("POST");
+        }
       }
     };
     getUser();
@@ -164,34 +169,21 @@ const Profile = () => {
           </div>
           <div className="mt-10">
             <div className="flex items-center justify-center space-x-14">
-              <div
-                className={cn(
-                  "flex items-center space-x-2 cursor-pointer",
-                  postOrSave === "POST" && "text-blue-500"
-                )}
-                onClick={() => setPostOrSave("POST")}
-              >
-                <Grid />
-                <span className="font-semibold">Post</span>
-              </div>
-
-              {user?.role === "public" && (
-                <div
-                  className={cn(
-                    "flex items-center space-x-2 cursor-pointer",
-                    postOrSave === "SAVE" && "text-blue-500"
-                  )}
-                  onClick={() => setPostOrSave("SAVE")}
-                >
+              {postOrSave === "POST" && (
+                <div className="flex items-center space-x-2 text-blue-500">
+                  <Grid />
+                  <span className="font-semibold">Post</span>
+                </div>
+              )}
+              {postOrSave === "SAVE" && (
+                <div className="flex items-center space-x-2 text-blue-500">
                   <Bookmark />
                   <span className="font-semibold">Saved</span>
                 </div>
               )}
             </div>
             {postOrSave === "POST" && <Post userProfile={userProfile} />}
-            {postOrSave === "SAVE" && user?.role === "public" && (
-              <Saved userProfile={userProfile} />
-            )}
+            {postOrSave === "SAVE" && <Saved userProfile={userProfile} />}
           </div>
         </div>
       </div>

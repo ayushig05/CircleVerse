@@ -17,6 +17,7 @@ const {
   followUnfollow,
   getMe,
   updateThemePreference,
+  searchUsers,
 } = require("../controllers/user");
 const isAuthenticated = require("../middleware/isAuthenticated");
 const upload = require("../middleware/multer");
@@ -40,5 +41,6 @@ router.get("/suggested-user", isAuthenticated, suggestedUser);
 router.post("/follow-unfollow/:id", isAuthenticated, followUnfollow);
 router.get("/me", isAuthenticated, getMe);
 router.post("/update-theme", isAuthenticated, updateThemePreference);
+router.get("/search-user", searchUsers);
 
 module.exports = router;

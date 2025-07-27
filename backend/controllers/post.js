@@ -309,3 +309,22 @@ exports.getCaption = catchAsync(async (req, res, next) => {
         });
     }
 });
+
+exports.searchPosts = catchAsync(async (req, res, next) => {
+    const keyword = req.query.keyword?.trim();
+    if (!keyword) {
+        return res.status(400).json({ 
+            status: "fail", 
+            message: "No keyword provided" 
+        });
+    }
+    const posts = await Post.find({ caption: { $regex: keyword, $options: "i" } })
+        .populate("user", "username profilePicture role")
+        .sort({ createdAt: -1 });
+    res.status(200).json({
+        status: "success",
+        data: { 
+            posts 
+        },
+    });
+});

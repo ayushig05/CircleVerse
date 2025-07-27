@@ -9,6 +9,7 @@ const {
   addComment,
   createVideoPost,
   getCaption,
+  searchPosts,
 } = require("../controllers/post");
 const isAuthenticated = require("../middleware/isAuthenticated");
 const upload = require("../middleware/multer");
@@ -25,5 +26,6 @@ router.delete("/delete-post/:id", isAuthenticated, deletePost);
 router.post("/like-dislike/:id", isAuthenticated, likeOrDislikePost);
 router.post("/comment/:id", isAuthenticated, addComment);
 router.post("/generate-caption", isAuthenticated, restrictTo("celebrity"), getCaption);
+router.get("/search-post", isAuthenticated, searchPosts);
 
 module.exports = router;

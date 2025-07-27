@@ -168,3 +168,16 @@ exports.updateThemePreference = catchAsync(async (req, res, next) => {
         },
     });
 });
+
+exports.searchUsers = catchAsync(async (req, res, next) => {
+    const { keyword } = req.query;
+    const users = await User.find({
+        username: { $regex: keyword, $options: "i" },
+    }).select("username profilePicture bio role");
+    res.status(200).json({
+        status: "success",
+        data: { 
+            users 
+        },
+    });
+});
