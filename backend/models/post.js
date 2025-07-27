@@ -7,26 +7,23 @@ const postSchema = new mongoose.Schema(
             maxlength: [2200, "Caption should be less than 2200 characters"],
             trim: true,
         },
-        image: {
-            url: {
-                type: String,
-                required: false,
+        media: [
+            {
+                url: {
+                    type: String,
+                    required: true,
+                },
+                publicId: {
+                    type: String,
+                    required: true,
+                },
+                type: {
+                    type: String,
+                    enum: ["image", "video"],
+                    required: true,
+                },
             },
-            publicId: {
-                type: String,
-                required: false,
-            },
-        },
-        video: {
-            url: {
-                type: String,
-                required: false,
-            },
-            publicId: {
-                type: String,
-                required: false,
-            },
-        },
+        ],
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",

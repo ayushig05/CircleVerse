@@ -37,7 +37,7 @@ const DotButton = ({ post, user }) => {
       });
     };
     const result = await handleAuthRequest(deletePostReq, setIsLoading);
-    if (result?.data.status === "success") {
+    if (result?.data?.status === "success") {
       if (post?._id) {
         dispatch(deletePosts(post._id));
         toast.success(result.data.message);

@@ -11,64 +11,67 @@ import { Button } from "../ui/button";
 import LoadingButton from "./loader";
 import { handleAuthRequest } from "@/utils/api";
 import { addPosts } from "@/store/postSlice";
+import MediaCarousel from "./mediaCarousel";
 
 const CreatePost = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [previewURL, setPreviewURL] = useState(null);
+  const [selectedFile, setSelectedFile] = useState([]);
+  const [previewURL, setPreviewURL] = useState([]);
   const [caption, setCaption] = useState("");
-  const [fileType, setFileType] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (!isOpen) {
-      setSelectedFile(null);
-      setPreviewURL(null);
+      setSelectedFile([]);
+      setPreviewURL([]);
       setCaption("");
-      setFileType("");
     }
   }, [isOpen]);
 
   const handleButton = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+    fileInputRef.current?.click();
   };
 
   const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) {
+    const files = Array.from(e.target.files);
+    if (!files || files.length === 0) {
       return;
     }
-    const isImage = file.type.startsWith("image/");
-    const isVideo = file.type.startsWith("video/");
-    if (!isImage && !isVideo) {
-      toast.error("Only image and video files are supported.");
-      return;
+    const validFiles = [];
+    const previews = [];
+    for (let file of files) {
+      const isImage = file.type.startsWith("image/");
+      const isVideo = file.type.startsWith("video/");
+      if (!isImage && !isVideo) {
+        toast.success("Only image and video files are supported.");
+        return;
+      }
+      if (file.size > 30 * 1024 * 1024) {
+        toast.success("File size should not exceed 30MB.");
+        return;
+      }
+      validFiles.push(file);
+      previews.push({
+        url: URL.createObjectURL(file),
+        type: isImage ? "image" : "video",
+      });
     }
-    if (file.size > 30 * 1024 * 1024) {
-      toast.error("File size should not exceed 30MB.");
-      return;
-    }
-    setSelectedFile(file);
-    setPreviewURL(URL.createObjectURL(file));
-    setFileType(isImage ? "image" : "video");
+    setSelectedFile(validFiles);
+    setPreviewURL(previews);
   };
 
   const handleCreatePost = async () => {
-    if (!selectedFile) {
-      toast.error("Please select a file to create a post.");
+    if (!selectedFile || selectedFile.length === 0) {
+      toast.success("Please select at least one file to create a post.");
       return;
     }
     const formData = new FormData();
     formData.append("caption", caption);
-    formData.append(fileType, selectedFile);
-    const endpoint =
-      fileType === "image" ? "/posts/create-post" : "/posts/create-video-post";
+    selectedFile.forEach((file) => formData.append("media", file));
     const createPostReq = async () => {
-      return await axios.post(`${API_URL}${endpoint}`, formData, {
+      return await axios.post(`${API_URL}/posts/create-post`, formData, {
         withCredentials: true,
       });
     };
@@ -77,9 +80,9 @@ const CreatePost = ({ isOpen, onClose }) => {
       dispatch(addPosts(result.data.data.post));
       toast.success("Post Created Successfully");
       setTimeout(() => {
-        setPreviewURL(null);
+        setSelectedFile([]);
+        setPreviewURL([]);
         setCaption("");
-        setSelectedFile(null);
         onClose();
         navigate("/");
         window.location.reload();
@@ -92,7 +95,7 @@ const CreatePost = ({ isOpen, onClose }) => {
       toast.error("Please upload media first.");
       return;
     }
-    const filename = selectedFile?.name;
+    const filename = selectedFile?.[0]?.name;
     try {
       const res = await axios.post(`${API_URL}/posts/generate-caption`, {
         description: filename,
@@ -111,31 +114,17 @@ const CreatePost = ({ isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
-        {previewURL ? (
-          <div className="flex flex-col items-center justify-center text-center space-y-4">
-            <div className="mt-4">
-              {fileType === "image" ? (
-                <img
-                  src={previewURL}
-                  alt="Preview"
-                  className="overflow-auto max-h-96 rounded-md object-contain w-full"
-                />
-              ) : (
-                <video
-                  src={previewURL}
-                  controls
-                  className="overflow-auto max-h-96 rounded-md object-contain w-full"
-                />
-              )}
-            </div>
+      <DialogContent className=" max-w-md w-full dark:bg-zinc-900 bg-white text-foreground dark:text-white">
+        {previewURL.length > 0 ? (
+          <div className="flex flex-col items-center text-center justify-center space-y-4">
+            <MediaCarousel media={previewURL} />
             <div className="flex flex-col sm:flex-row w-full gap-4 items-center mt-4">
               <input
                 type="text"
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
                 placeholder="Write a caption..."
-                className="p-2 border rounded-md w-full sm:w-[78%] bg-muted dark:bg-muted text-foreground dark:text-foreground focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="p-2 border rounded-md w-full sm:w-[78%] bg-muted dark:bg-muted text-foreground focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
               <Button
                 disabled={isLoading}
@@ -156,8 +145,8 @@ const CreatePost = ({ isOpen, onClose }) => {
               <Button
                 className="bg-gray-500 text-white hover:bg-gray-600 cursor-pointer"
                 onClick={() => {
-                  setPreviewURL(null);
-                  setSelectedFile(null);
+                  setPreviewURL([]);
+                  setSelectedFile([]);
                   setCaption("");
                   onClose();
                 }}
@@ -174,7 +163,7 @@ const CreatePost = ({ isOpen, onClose }) => {
               </DialogTitle>
             </DialogHeader>
             <div className="flex flex-col items-center justify-center text-center space-y-4">
-              <div className="flex space-x-2 text-gray-600 mt-4">
+              <div className="flex space-x-2 text-gray-600 dark:text-gray-300 mt-4">
                 <ImageIcon size={40} />
                 <VideoIcon size={40} />
               </div>
@@ -188,6 +177,7 @@ const CreatePost = ({ isOpen, onClose }) => {
               <input
                 type="file"
                 accept="image/*,video/*"
+                multiple
                 className="hidden"
                 ref={fileInputRef}
                 onChange={handleFileChange}

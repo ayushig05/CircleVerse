@@ -1,10 +1,7 @@
 import React from "react";
-import { useParams } from "react-router-dom";
 import { Heart, MessageCircle } from "lucide-react";
 
 const Post = ({ userProfile }) => {
-  const { id } = useParams();
-
   return (
     <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {userProfile?.posts?.length === 0 && (
@@ -13,9 +10,9 @@ const Post = ({ userProfile }) => {
       {userProfile?.posts?.map((post) => {
         return (
           <div key={post._id} className="relative group overflow-hidden">
-            {post?.video?.url ? (
+            {post?.media?.length > 0 && post.media[0]?.type === "video" ? (
               <video
-                src={post.video.url}
+                src={post.media[0].url}
                 className="w-full h-full object-cover aspect-square"
                 autoPlay
                 loop
@@ -26,21 +23,20 @@ const Post = ({ userProfile }) => {
               />
             ) : (
               <img
-                src={post?.image?.url}
+                src={post?.media?.[0]?.url}
                 alt="Post"
                 className="w-full h-full object-cover aspect-square"
               />
             )}
-
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-70 transition-opacity duration-300">
               <div className="flex space-x-6">
                 <button className="p-2 rounded-full text-white space-x-2 flex items-center font-bold">
                   <Heart className="w-7 h-7" />
-                  <span>{post?.likes.length}</span>
+                  <span>{post?.likes?.length || 0}</span>
                 </button>
                 <button className="p-2 rounded-full text-white space-x-2 flex items-center font-bold">
                   <MessageCircle className="w-7 h-7" />
-                  <span>{post?.comments.length}</span>
+                  <span>{post?.comments?.length || 0}</span>
                 </button>
               </div>
             </div>

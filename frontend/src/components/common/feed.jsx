@@ -30,6 +30,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Comment from "./comment";
 import DotButton from "./dotButton";
 import SearchUsers from "./searchUsers";
+import MediaCarousel from "./mediaCarousel";
 
 const Feed = () => {
   const dispatch = useDispatch();
@@ -179,130 +180,114 @@ const Feed = () => {
 
   return (
     <div className="mt-20 w-[70%] mx-auto">
-      {posts.map((post, index) => (
-        <div
-          key={post._id}
-          ref={index === posts.length - 1 && !search ? lastPostRef : null}
-          className="mt-8"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Avatar className="w-9 h-9">
-                <AvatarImage
-                  src={post.user?.profilePicture}
-                  className="h-full w-full"
-                />
-                <AvatarFallback>
-                  <UserRound size={20} />
-                </AvatarFallback>
-              </Avatar>
-              <h1 className="flex items-center font-semibold">
-                {post.user?.username}
-                {post.user?.role === "celebrity" && (
-                  <span className="text-blue-500 ml-1">
-                    <BadgeCheck className="w-4 h-4" />
-                  </span>
+      {posts.map((post, index) => {
+        const media = Array.isArray(post.media) ? post.media : [];
+        return (
+          <div
+            key={post._id}
+            ref={index === posts.length - 1 && !search ? lastPostRef : null}
+            className="mt-8"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Avatar className="w-9 h-9">
+                  <AvatarImage
+                    src={post.user?.profilePicture}
+                    className="h-full w-full"
+                  />
+                  <AvatarFallback>
+                    <UserRound size={20} />
+                  </AvatarFallback>
+                </Avatar>
+                <h1 className="flex items-center font-semibold">
+                  {post.user?.username}
+                  {post.user?.role === "celebrity" && (
+                    <span className="text-blue-500 ml-1">
+                      <BadgeCheck className="w-4 h-4" />
+                    </span>
+                  )}
+                </h1>
+              </div>
+              <DotButton post={post} user={user} />
+            </div>
+            {media.length > 0 && (
+              <div className="mt-2">
+                <MediaCarousel media={media} />
+              </div>
+            )}
+            <div className="mt-3 flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                {user?._id &&
+                user?.role === "celebrity" &&
+                post.user?.role === "public" ? (
+                  <HeartOutline
+                    className="w-6 h-6 cursor-not-allowed text-gray-400"
+                    title="Celebrities cannot like public users' posts"
+                  />
+                ) : user?._id && post.likes.includes(user._id) ? (
+                  <HeartSolid
+                    className="w-6 h-6 text-red-500 cursor-pointer"
+                    onClick={() => handleLikeDislike(post._id)}
+                  />
+                ) : (
+                  <HeartOutline
+                    className="w-6 h-6 cursor-pointer"
+                    onClick={() => handleLikeDislike(post._id)}
+                  />
                 )}
-              </h1>
+                <MessageCircle className="cursor-pointer" />
+                <Send className="cursor-pointer" />
+              </div>
+              {user?.role === "public" &&
+                (user?.savedPosts?.includes(post._id) ? (
+                  <BookmarkSolid
+                    onClick={() => handleSaveUnsave(post._id)}
+                    className="w-6 h-6 cursor-pointer"
+                  />
+                ) : (
+                  <BookmarkOutline
+                    onClick={() => handleSaveUnsave(post._id)}
+                    className="w-6 h-6 cursor-pointer"
+                  />
+                ))}
             </div>
-            <DotButton post={post} user={user} />
-          </div>
-          <div className="mt-2">
-            {post.image?.url ? (
-              <img
-                src={post.image.url}
-                alt="Post"
-                width={400}
-                height={400}
-                className="w-full max-h-[500px] object-contain rounded"
+            <h1 className="mt-2 text-sm font-semibold">
+              {post.likes.length} likes
+            </h1>
+            <p className="mt-2 font-medium">{post.caption}</p>
+            <Comment post={post} user={user} />
+            <div className="mt-2 flex items-center">
+              <input
+                type="text"
+                placeholder="Add a comment..."
+                className="flex-1 placeholder:text-gray-800 outline-none"
+                value={comment[post._id] || ""}
+                onChange={(e) =>
+                  setComment((prev) => ({
+                    ...prev,
+                    [post._id]: e.target.value,
+                  }))
+                }
               />
-            ) : post.video?.url ? (
-              <video
-                src={post.video.url}
-                autoPlay
-                loop
-                muted
-                playsInline
-                disablePictureInPicture
-                controlsList="nodownload noplaybackrate nofullscreen"
-                width={400}
-                height={400}
-                className="w-full max-h-[500px] object-contain rounded"
-              />
-            ) : null}
-          </div>
-          <div className="mt-3 flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              {user?._id &&
-              user?.role === "celebrity" &&
-              post.user?.role === "public" ? (
-                <HeartOutline
-                  className="w-6 h-6 cursor-not-allowed text-gray-400"
-                  title="Celebrities cannot like public users' posts"
-                />
-              ) : user?._id && post.likes.includes(user._id) ? (
-                <HeartSolid
-                  className="w-6 h-6 text-red-500 cursor-pointer"
-                  onClick={() => handleLikeDislike(post._id)}
-                />
-              ) : (
-                <HeartOutline
-                  className="w-6 h-6 cursor-pointer"
-                  onClick={() => handleLikeDislike(post._id)}
-                />
-              )}
-              <MessageCircle className="cursor-pointer" />
-              <Send className="cursor-pointer" />
+              <p
+                role="button"
+                className="text-sm font-semibold text-blue-700 cursor-pointer"
+                onClick={() => {
+                  handleComment(post._id);
+                }}
+              >
+                Post
+              </p>
             </div>
-            {user?.role === "public" &&
-              (user?.savedPosts?.includes(post._id) ? (
-                <BookmarkSolid
-                  onClick={() => handleSaveUnsave(post._id)}
-                  className="w-6 h-6 cursor-pointer"
-                />
-              ) : (
-                <BookmarkOutline
-                  onClick={() => handleSaveUnsave(post._id)}
-                  className="w-6 h-6 cursor-pointer"
-                />
-              ))}
+            {index === posts.length - 1 && loadingMore && !search && (
+              <div className="w-full flex justify-center mt-4">
+                <Loader className="animate-spin" />
+              </div>
+            )}
+            <div className="pb-6 border-b-2"></div>
           </div>
-          <h1 className="mt-2 text-sm font-semibold">
-            {post.likes.length} likes
-          </h1>
-          <p className="mt-2 font-medium">{post.caption}</p>
-          <Comment post={post} user={user} />
-          <div className="mt-2 flex items-center">
-            <input
-              type="text"
-              placeholder="Add a comment..."
-              className="flex-1 placeholder:text-gray-800 outline-none"
-              value={comment[post._id] || ""}
-              onChange={(e) =>
-                setComment((prev) => ({
-                  ...prev,
-                  [post._id]: e.target.value,
-                }))
-              }
-            />
-            <p
-              role="button"
-              className="text-sm font-semibold text-blue-700 cursor-pointer"
-              onClick={() => {
-                handleComment(post._id);
-              }}
-            >
-              Post
-            </p>
-          </div>
-          {index === posts.length - 1 && loadingMore && !search && (
-            <div className="w-full flex justify-center mt-4">
-              <Loader className="animate-spin" />
-            </div>
-          )}
-          <div className="pb-6 border-b-2"></div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

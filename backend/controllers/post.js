@@ -7,37 +7,52 @@ const Post = require("../models/post");
 const Comment = require("../models/comment");
 const generateCaption = require("../utils/generateCaption");
 
-exports.createPost = catchAsync(async(req, res, next) => {
+exports.createPost = catchAsync(async (req, res, next) => {
     const { caption } = req.body;
-    const image = req.file;
+    const files = req.files;
     const userId = req.user._id;
-    if (!image) {
-        return next(new AppError("Image is required for the post", 400));
+    if (!files || files.length === 0) {
+        return next(new AppError("At least one media file is required", 400));
     }
-    const optimizeImageBuffer = await sharp(image.buffer).resize({
-        width: 800,
-        height: 800,
-        fit: "inside",
-    }).toFormat("jpeg", { quality: 80 }).toBuffer();
-    const fileUri = `data:image/jpeg;base64,${optimizeImageBuffer.toString("base64")}`;
-    const cloudResponse = await uploadToCloudinary(fileUri);
+    const media = [];
+    for (const file of files) {
+        let fileUri;
+        let uploadRes;
+        if (file.mimetype.startsWith("image")) {
+            const optimizedImage = await sharp(file.buffer)
+                .resize({ width: 800, height: 800, fit: "inside" })
+                .toFormat("jpeg", { quality: 80 })
+                .toBuffer();
+            fileUri = `data:image/jpeg;base64,${optimizedImage.toString("base64")}`;
+            uploadRes = await uploadToCloudinary(fileUri);
+            media.push({
+                url: uploadRes.secure_url,
+                publicId: uploadRes.public_id,
+                type: "image",
+            });
+        } else if (file.mimetype.startsWith("video")) {
+            fileUri = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+            uploadRes = await uploadToCloudinary(fileUri, "video");
+            media.push({
+                url: uploadRes.secure_url,
+                publicId: uploadRes.public_id,
+                type: "video",
+            });
+        } else {
+            return next(new AppError("Unsupported file type", 400));
+        }
+    }
     let post = await Post.create({
         caption,
-        image: {
-            url: cloudResponse.secure_url,
-            publicId: cloudResponse.public_id,
-        },
+        media,
         user: userId,
     });
     const user = await User.findById(userId);
     if (user) {
-        user.posts.push(post.id);
+        user.posts.push(post._id);
         await user.save({ validateBeforeSave: false });
     }
-    post = await post.populate({
-        path: "user",
-        select: "username email bio profilePicture",
-    });
+    post = await post.populate("user", "username email bio profilePicture");
     if (global.io) {
         global.io.emit("new-post", post);
     }
@@ -45,7 +60,7 @@ exports.createPost = catchAsync(async(req, res, next) => {
         status: "success",
         message: "Post Created",
         data: {
-            post,
+            post 
         },
     });
 });
@@ -146,7 +161,7 @@ exports.saveOrUnsavePost = catchAsync(async(req, res, next) => {
     }
 });
 
-exports.deletePost = catchAsync(async(req, res, next) => {
+exports.deletePost = catchAsync(async (req, res, next) => {
     const { id } = req.params;
     const userId = req.user._id;
     const post = await Post.findById(id).populate("user");
@@ -156,22 +171,20 @@ exports.deletePost = catchAsync(async(req, res, next) => {
     if (post.user._id.toString() !== userId.toString()) {
         return next(new AppError("You are not authorized to delete this post", 403));
     }
-    await User.updateOne(
-        { _id: userId }, 
-        { $pull: { posts: id } }
-    );
-    await User.updateMany(
-        { savedPosts: id }, 
-        { $pull: { savedPosts: id } }
-    );
+    await User.updateOne({ _id: userId }, { $pull: { posts: id } });
+    await User.updateMany({ savedPosts: id }, { $pull: { savedPosts: id } });
     await Comment.deleteMany({ post: id });
-    if (post.image.publicId) {
-        await cloudinary.uploader.destroy(post.image.publicId);
+    if (Array.isArray(post.media)) {
+        for (const file of post.media) {
+            if (file.publicId) {
+                await cloudinary.uploader.destroy(file.publicId);
+            }
+        }
     }
     await Post.findByIdAndDelete(id);
     res.status(200).json({
         status: "success",
-        message: "Post Deleted Successsfully",
+        message: "Post Deleted Successfully",
     });
 });
 
@@ -241,42 +254,6 @@ exports.addComment = catchAsync(async(req, res, next) => {
         data: {
             comment,
         },
-    });
-});
-
-exports.createVideoPost = catchAsync(async (req, res, next) => {
-    const { caption } = req.body;
-    const video = req.file;
-    const userId = req.user._id;
-    if (!video) {
-        return next(new AppError("Video is required for the post", 400));
-    }
-    const fileUri = `data:${video.mimetype};base64,${video.buffer.toString("base64")}`;
-    const cloudResponse = await uploadToCloudinary(fileUri, "video");
-    let post = await Post.create({
-        caption,
-        video: {
-            url: cloudResponse.secure_url,
-            publicId: cloudResponse.public_id,
-        },
-        user: userId,
-    });
-    const user = await User.findById(userId);
-    if (user) {
-        user.posts.push(post._id);
-        await user.save({ validateBeforeSave: false });
-    }
-    post = await post.populate({
-        path: "user",
-        select: "username email bio profilePicture",
-    });
-    if (global.io) {
-        global.io.emit("new-post", post);
-    }
-    return res.status(201).json({
-        status: "success",
-        message: "Video Post Created",
-        data: { post },
     });
 });
 
